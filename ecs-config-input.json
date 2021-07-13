@@ -1,0 +1,160 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "typeName": "input",
+    "description": "Configuration input definition for ECS Config Composer",
+    "properties": {
+        "files": {
+            "type": "array",
+            "items": {
+            }
+        },
+        "IamOverride": {
+            "type": "object",
+            "$ref": "#/definitions/IamOverrideDef"
+        }
+    },
+    "definitions": {
+        "FileDef": {
+            "type": "object",
+            "required": [
+                "path"
+            ],
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string",
+                    "description": "The raw content of the file to use"
+                },
+                "source": {
+                    "$ref": "#/definitions/SourceDef"
+                },
+                "encoding": {
+                    "type": "string",
+                    "enum": [
+                        "base64",
+                        "plain"
+                    ],
+                    "default": "plain"
+                },
+                "group": {
+                    "type": "string",
+                    "description": "UNIX group name or GID owner of the file. Default to root(0)"
+                },
+                "owner": {
+                    "type": "string",
+                    "description": "UNIX user or UID owner of the file. Default to root(0)"
+                },
+                "mode": {
+                    "type": "string",
+                    "description": "UNIX file mode",
+                    "default": "0644"
+                },
+                "context": {
+                    "type": "string",
+                    "enum": [
+                        "plain",
+                        "jinja2"
+                    ],
+                    "default": "plain"
+                },
+                "ignore_if_failed": {
+                    "type": "boolean",
+                    "description": "Whether or not the failure to retrieve the file should stop the execution",
+                    "default": false
+                },
+                "depends_on": {
+                    "type": "array",
+                    "description": "list of files to acquire prior to this one",
+                    "items": {
+                        "type": "string",
+                        "description": "Name of another file this one depends on"
+                    }
+                },
+                "commands": {
+                    "type": "object",
+                    "properties": {
+                        "post": {
+                            "$ref": "#/definitions/CommandsDef",
+                            "description": "Commands to run after the file was retrieved"
+                        },
+                        "pre": {
+                            "$ref": "#/definitions/CommandsDef",
+                            "description": "Commands executed prior to the file being fetched, after `depends_on` completed"
+                        }
+                    }
+                }
+            }
+        },
+        "SourceDef": {
+            "type": "object",
+            "properties": {
+                "Url": {
+                    "type": "string"
+                },
+                "Ssm": {
+                    "type": "string"
+                },
+                "S3": {
+                    "$ref": "#/definitions/S3Def"
+                }
+            }
+        },
+        "S3Def": {
+            "type": "object",
+            "required": [
+                "BucketName",
+                "Key"
+            ],
+            "properties": {
+                "BucketName": {
+                    "type": "string",
+                    "description": "Name of the S3 Bucket"
+                },
+                "BucketRegion": {
+                    "type": "string",
+                    "description": "S3 Region to use. Default will ignore or retrieve via s3:GetBucketLocation"
+                },
+                "Key": {
+                    "type": "string",
+                    "description": "Full path to the file to retrieve"
+                },
+                "IsFolder": {
+                    "type": "boolean",
+                    "description": "Whether the Key points to a folder and files should be retrieved recursively"
+                },
+                "IamOverride": {
+                    "$ref": "#/definitions/IamOverrideDef"
+                }
+            }
+        },
+        "IamOverrideDef": {
+            "type": "object",
+            "description": "When source points to AWS, allows to indicate if another role should be used",
+            "properties": {
+                "RoleArn": {
+                    "type": "string"
+                },
+                "SessionName": {
+                    "type": "string",
+                    "default": "S3File@EcsConfigComposer",
+                    "description": "Name of the IAM session"
+                },
+                "ExternalId": {
+                    "type": "string",
+                    "description": "The External ID to use when using sts:AssumeRole"
+                }
+            }
+        },
+        "CommandsDef": {
+            "type": "array",
+            "description": "List of commands to run",
+            "items": {
+                "type": "string",
+                "description": "Shell command to run"
+            }
+        }
+    }
+}

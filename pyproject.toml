@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "ecs_config_composer"
+version = "0.0.1"
+description = "Files and configuration handler to inject configuration files into volumes for ECS containers"
+authors = ["John Preston <john@compose-x.io>"]
+license = "MPL-2.0"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+boto3 = "^1.17.110"
+pydantic = "^1.8.2"
+
+[tool.poetry.dev-dependencies]
+placebo = "^0.9.0"
+datamodel-code-generator = {version = "^0.11.8", extras = ["http"]}
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.datamodel-codegen]
+field-constraints = true
+snake-case-field = true
+strip-default-none = false
+target-python-version = "3.8"
+
+[tool.black]
+skip-string-normalization = true
+line-length = 120
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 100
+known_first_party = "kelvin"
