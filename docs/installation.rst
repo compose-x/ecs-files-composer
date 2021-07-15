@@ -12,7 +12,7 @@ To install ECS Config Composer, run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install ecs_config_composer
+    $ pip install ecs_files_composer
 
 This is the preferred method to install ECS Config Composer, as it will always install the most recent stable release.
 
@@ -32,13 +32,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/compose-x/ecs_config_composer
+    $ git clone git://github.com/compose-x/ecs_files_composer
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl -OJL https://github.com/compose-x/ecs_config_composer/tarball/master
+    $ curl -OJL https://github.com/compose-x/ecs_files_composer/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/compose-x/ecs_config_composer
-.. _tarball: https://github.com/compose-x/ecs_config_composer/tarball/master
+.. _Github repo: https://github.com/compose-x/ecs_files_composer
+.. _tarball: https://github.com/compose-x/ecs_files_composer/tarball/master

@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=ecs_config_composer
+set SPHINXPROJ=ecs_files_composer
 
 if "%1" == "" goto help
 

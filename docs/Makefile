@@ -4,7 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = python -msphinx
-SPHINXPROJ    = ecs_config_composer
+SPHINXPROJ    = ecs_files_composer
 SOURCEDIR     = .
 BUILDDIR      = _build
 

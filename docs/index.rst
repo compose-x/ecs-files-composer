@@ -1,5 +1,5 @@
-Welcome to ECS Config Composer's documentation!
-======================================
+Welcome to ECS Files Composer's documentation!
+===============================================
 
 .. toctree::
    :maxdepth: 2

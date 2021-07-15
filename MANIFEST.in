@@ -3,7 +3,10 @@ include CONTRIBUTING.rst
 include HISTORY.rst
 include LICENSE
 include README.rst
-include ecs-config-input.json
+include USAGE.rst
+include NOTICES.rst
+include requirements*.txt
+include ecs-files-input.json
 
 recursive-include tests *
 recursive-exclude * __pycache__

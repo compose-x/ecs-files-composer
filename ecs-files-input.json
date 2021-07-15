@@ -2,11 +2,18 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "typeName": "input",
-    "description": "Configuration input definition for ECS Config Composer",
+    "description": "Configuration input definition for ECS Files Composer",
+    "required": [
+        "files"
+    ],
     "properties": {
         "files": {
-            "type": "array",
-            "items": {
+            "type": "object",
+            "uniqueItems": true,
+            "patternProperties": {
+                "^/[\\x00-\\x7F]+$": {
+                    "$ref": "#/definitions/FileDef"
+                }
             }
         },
         "IamOverride": {
@@ -17,9 +24,7 @@
     "definitions": {
         "FileDef": {
             "type": "object",
-            "required": [
-                "path"
-            ],
+            "additionalProperties": false,
             "properties": {
                 "path": {
                     "type": "string"
@@ -41,11 +46,13 @@
                 },
                 "group": {
                     "type": "string",
-                    "description": "UNIX group name or GID owner of the file. Default to root(0)"
+                    "description": "UNIX group name or GID owner of the file. Default to root(0)",
+                    "default": "root"
                 },
                 "owner": {
                     "type": "string",
-                    "description": "UNIX user or UID owner of the file. Default to root(0)"
+                    "description": "UNIX user or UID owner of the file. Default to root(0)",
+                    "default": "root"
                 },
                 "mode": {
                     "type": "string",
@@ -64,14 +71,6 @@
                     "type": "boolean",
                     "description": "Whether or not the failure to retrieve the file should stop the execution",
                     "default": false
-                },
-                "depends_on": {
-                    "type": "array",
-                    "description": "list of files to acquire prior to this one",
-                    "items": {
-                        "type": "string",
-                        "description": "Name of another file this one depends on"
-                    }
                 },
                 "commands": {
                     "type": "object",
@@ -95,10 +94,44 @@
                     "type": "string"
                 },
                 "Ssm": {
-                    "type": "string"
+                    "$ref": "#/definitions/SsmDef"
                 },
                 "S3": {
                     "$ref": "#/definitions/S3Def"
+                },
+                "Secret": {
+                    "$ref": "#/definitions/SecretDef"
+                }
+            }
+        },
+        "SsmDef": {
+            "type": "object",
+            "properties": {
+                "ParameterName": {
+                    "type": "string"
+                },
+                "IamOverride": {
+                    "$ref": "#/definitions/IamOverrideDef"
+                }
+            }
+        },
+        "SecretDef": {
+            "type": "object",
+            "required": [
+                "SecretId"
+            ],
+            "properties": {
+                "SecretId": {
+                    "type": "string"
+                },
+                "VersionId": {
+                    "type": "string"
+                },
+                "VersionStage": {
+                    "type": "string"
+                },
+                "IamOverride": {
+                    "$ref": "#/definitions/IamOverrideDef"
                 }
             }
         },
@@ -121,10 +154,6 @@
                     "type": "string",
                     "description": "Full path to the file to retrieve"
                 },
-                "IsFolder": {
-                    "type": "boolean",
-                    "description": "Whether the Key points to a folder and files should be retrieved recursively"
-                },
                 "IamOverride": {
                     "$ref": "#/definitions/IamOverrideDef"
                 }
@@ -145,6 +174,9 @@
                 "ExternalId": {
                     "type": "string",
                     "description": "The External ID to use when using sts:AssumeRole"
+                },
+                "RegionName": {
+                    "type": "string"
                 }
             }
         },

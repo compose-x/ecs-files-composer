@@ -38,25 +38,21 @@ try:
 except FileNotFoundError:
     print("Failed to load dev requirements. Skipping")
 
-requirements = []
 
 setup_requirements = [
     "pytest-runner",
 ]
 
-test_requirements = [
-    "pytest>=3",
-]
-
 setup(
     author="John Preston",
     author_email="john@compose-x.io",
-    python_requires=">=3.8",
+    python_requires=">=3.7",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Intended Audience :: System Administrators",
@@ -66,19 +62,19 @@ setup(
     description="Files and configuration handler to inject configuration files into volumes for ECS containers",
     entry_points={
         "console_scripts": [
-            "ecs_config_composer=ecs_config_composer.cli:main",
+            "ecs_files_composer=ecs_files_composer.cli:main",
         ],
     },
     install_requires=requirements,
     long_description=readme + "\n\n" + history,
     include_package_data=True,
-    keywords="ecs_config_composer",
-    name="ecs_config_composer",
-    packages=find_packages(include=["ecs_config_composer", "ecs_config_composer.*"]),
+    keywords="ecs_files_composer",
+    name="ecs_files_composer",
+    packages=find_packages(include=["ecs_files_composer", "ecs_files_composer.*"]),
     setup_requires=setup_requirements,
     test_suite="tests",
     tests_require=test_requirements,
-    url="https://github.com/compose-x/ecs_config_composer",
+    url="https://github.com/compose-x/ecs_files_composer",
     version="0.0.1",
     zip_safe=False,
     license="MPL-2.0",

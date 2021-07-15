@@ -48,7 +48,7 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 lint: ## check style with flake8
-	flake8 ecs_config_composer tests
+	flake8 ecs_files_composer tests
 
 test: ## run tests quickly with the default Python
 	pytest
@@ -57,15 +57,15 @@ test-all: ## run tests on every Python version with tox
 	tox
 
 coverage: ## check code coverage quickly with the default Python
-	coverage run --source ecs_config_composer -m pytest
+	coverage run --source ecs_files_composer -m pytest
 	coverage report -m
 	coverage html
 	$(BROWSER) htmlcov/index.html
 
 docs: ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/ecs_config_composer.rst
+	rm -f docs/ecs_files_composer.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ ecs_config_composer
+	sphinx-apidoc -o docs/ ecs_files_composer
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html
@@ -89,12 +89,12 @@ install: clean ## install the package to the active Python's site-packages
 	python setup.py install
 
 conform	: ## Conform to a standard of coding syntax
-	isort --profile black ecs_config_composer
-	black ecs_config_composer tests setup.py
-	find ecs_config_composer -name "*.json" -type f  -exec sed -i '1s/^\xEF\xBB\xBF//' {} +
+	isort --profile black ecs_files_composer
+	black ecs_files_composer tests setup.py
+	find ecs_files_composer -name "*.json" -type f  -exec sed -i '1s/^\xEF\xBB\xBF//' {} +
 
 data-model:
-	datamodel-codegen  --input ecs-config-input.json \
+	datamodel-codegen  --input ecs-files-input.json \
 		--input-file-type jsonschema \
-		--output ecs_config_composer/input.py
+		--output ecs_files_composer/input.py
 # 		--enum-field-as-literal all

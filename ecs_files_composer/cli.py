@@ -1,0 +1,57 @@
+#  -*- coding: utf-8 -*-
+# SPDX-License-Identifier: MPL-2.0
+# Copyright 2020-2021 John Mille<john@compose-x.io>
+
+"""Console script for ecs_files_composer."""
+import argparse
+import sys
+from os import environ, path
+
+import yaml
+
+from ecs_files_composer.ecs_files_composer import init_config, start_jobs
+
+
+def main():
+    """Console script for ecs_files_composer."""
+    parser = argparse.ArgumentParser()
+    options = parser.add_mutually_exclusive_group()
+    options.add_argument(
+        "-f", "--from-file", help="Configuration for execution from a file", type=str, required=False, dest="file_path"
+    )
+    options.add_argument(
+        "-e",
+        "--from-env-var",
+        dest="env_var",
+        required=False,
+        help="Configuration for execution is in an environment variable",
+    )
+    options.add_argument(
+        "--from-ssm", dest="ssm_config", help="Configuration for execution is in an SSM Parameter", required=False
+    )
+    options.add_argument("--from-s3", dest="s3_config", required=False, help="Configuration for execution is in an S3")
+    parser.add_argument("--role-arn", help="The Role ARN to use for the configuration initialization", required=False)
+    parser.add_argument("_", nargs="*")
+    args = parser.parse_args()
+    print("Arguments: " + str(args._))
+    if not (args.env_var or args.ssm_config or args.s3_config or args.file_path) and environ.get(
+        "ECS_CONFIG_CONTENT", None
+    ):
+        config = environ.get("ECS_CONFIG_CONTENT")
+    elif args.env_var:
+        config = environ.get(args.env_var)
+    elif args.file_path:
+        config = init_config(file_path=args.file_path)
+    elif args.ssm_config:
+        config = init_config(ssm_parameter=args.ssm_config)
+    elif args.s3_config:
+        config = init_config(s3_config=args.s3_config)
+    else:
+        raise parser.error("You must specify where the execution configuration comes from or set ECS_CONFIG_CONTENT.")
+
+    start_jobs(config)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())  # pragma: no cover
