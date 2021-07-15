@@ -4,7 +4,7 @@ env:
   shell: /bin/bash
   variables:
     USE_EPOCH: 0
-    PUBLIC_REGISTRY: public.ecr.aws/ews-network
+    PUBLIC_REGISTRY: public.ecr.aws/compose-x
     DOCKER_CLI_EXPERIMENTAL: enabled
 
 batch:
@@ -18,7 +18,7 @@ batch:
         variables:
           VERSION: 3.8
           ARCH: amd64
-      buildspec: build_images.yml
+      buildspec: .cicd/build_images.yml
 
     - identifier: arm64v8_py38
       env:
@@ -29,15 +29,13 @@ batch:
         variables:
           ARCH: arm64v8
           VERSION: 3.8
-      buildspec: build_images.yml
+      buildspec: .cicd/build_images.yml
 
     - identifier: manifest
       env:
         compute-type: BUILD_GENERAL1_LARGE
         privileged-mode: true
       depend-on:
-        - amd64_py37
-        - arm64v8_py37
         - amd64_py38
         - arm64v8_py38
 
@@ -68,15 +66,15 @@ phases:
           for ARCH in "amd64" "arm64v8"; do
               ARCH_TAG=${VERSION}-${ARCH}
 
-              echo Publish from ${REGISTRY_URI}python:${ARCH_TAG}$ to ${PUBLIC_REGISTRY}/ecs-files-composer:${ARCH_TAG}$
-              docker pull ${REGISTRY_URI}python:${ARCH_TAG}
-              docker tag  ${REGISTRY_URI}python:${ARCH_TAG} ${PUBLIC_REGISTRY}/ecs-files-composer:${ARCH_TAG}
+              echo Publish from ${REGISTRY_URI}ecs-files-composer:${ARCH_TAG}$ to ${PUBLIC_REGISTRY}/ecs-files-composer:${ARCH_TAG}$
+              docker pull ${REGISTRY_URI}ecs-files-composer:${ARCH_TAG}
+              docker tag  ${REGISTRY_URI}ecs-files-composer:${ARCH_TAG} ${PUBLIC_REGISTRY}/ecs-files-composer:${ARCH_TAG}
               docker push ${PUBLIC_REGISTRY}/ecs-files-composer:${ARCH_TAG}
           done
       - |
           docker manifest create ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}                    \
-              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}.${VERSION}-amd64              \
-              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}.${VERSION}-arm64v8
+              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-amd64              \
+              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-arm64v8
       - docker manifest push ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}
 
     finally:

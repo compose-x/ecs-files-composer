@@ -1,1 +1,1 @@
-"""Unit test package for ecs_config_composer."""
+"""Unit test package for ecs_files_composer."""
