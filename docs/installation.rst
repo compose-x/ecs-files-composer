@@ -32,13 +32,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/compose-x/ecs_files_composer
+    $ git clone git://github.com/compose-x/ecs-fles-composer
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl -OJL https://github.com/compose-x/ecs_files_composer/tarball/master
+    $ curl -OJL https://github.com/compose-x/ecs-fles-composer/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/compose-x/ecs_files_composer
-.. _tarball: https://github.com/compose-x/ecs_files_composer/tarball/master
+.. _Github repo: https://github.com/compose-x/ecs-fles-composer
+.. _tarball: https://github.com/compose-x/ecs-fles-composer/tarball/master
