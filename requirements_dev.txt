@@ -5,10 +5,11 @@ flake8==3.8.4
 tox==3.20.1
 coverage==5.3
 behave==1.2.6
-Sphinx==4.0.2
+Sphinx==4.1.0
 twine==3.2.0
 sphinx-sitemap==2.2.0
 sphinx-material==0.0.32
+sphinx-jsonschema==1.16.11
 black==21.6b0
 pre-commit==2.9.3
 bump2version==1.0.1

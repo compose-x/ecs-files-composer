@@ -8,13 +8,13 @@ Installation
 Stable release
 --------------
 
-To install ECS Config Composer, run this command in your terminal:
+To install ECS Files Composer, run this command in your terminal:
 
 .. code-block:: console
 
     $ pip install ecs_files_composer
 
-This is the preferred method to install ECS Config Composer, as it will always install the most recent stable release.
+This is the preferred method to install ECS Files Composer, as it will always install the most recent stable release.
 
 If you don't have `pip`_ installed, this `Python installation guide`_ can guide
 you through the process.
@@ -26,19 +26,19 @@ you through the process.
 From sources
 ------------
 
-The sources for ECS Config Composer can be downloaded from the `Github repo`_.
+The sources for ECS Files Composer can be downloaded from the `Github repo`_.
 
 You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/compose-x/ecs-fles-composer
+    $ git clone git://github.com/compose-x/ecs-files-composer
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl -OJL https://github.com/compose-x/ecs-fles-composer/tarball/master
+    $ curl -OJL https://github.com/compose-x/ecs-files-composer/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/compose-x/ecs-fles-composer
-.. _tarball: https://github.com/compose-x/ecs-fles-composer/tarball/master
+.. _Github repo: https://github.com/compose-x/ecs-files-composer
+.. _tarball: https://github.com/compose-x/ecs-files-composer/tarball/master
