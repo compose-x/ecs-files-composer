@@ -1,0 +1,21 @@
+---
+# Docker compose base
+
+version: "3.8"
+
+volumes:
+  localshared:
+
+services:
+  files-sidecar:
+    volumes:
+      - localshared:/opt/files/
+    image: public.ecr.aws/compose-x/ecs-files-composer:v0.0.1
+    deploy:
+      resources:
+        # Smallest RAM size for a lambda
+        limits:
+          cpus: 0.1
+          memory: 128M
+    build:
+      context: ./

@@ -1,0 +1,51 @@
+---
+# Override file for local testing with config from the default env var
+
+version: "3.8"
+services:
+  ecs-local-endpoints:
+    image: amazon/amazon-ecs-local-container-endpoints:latest-amd64
+    volumes:
+      - /var/run:/var/run
+      - $HOME/.aws/:/home/.aws/
+    environment:
+      ECS_LOCAL_METADATA_PORT: "51679"
+      HOME: "/home"
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-eu-west-1}
+      AWS_PROFILE: ${AWS_PROFILE}
+    ports:
+      - 51679:51679
+
+  files-sidecar:
+    environment:
+      AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: "/creds"
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-eu-west-1}
+      ECS_CONFIG_CONTENT: |
+
+        files:
+          /opt/files/test.txt:
+            content: >-
+              test from a yaml raw content
+            owner: john
+            group: root
+            mode: 600
+          /opt/files/aws.template:
+            source:
+              S3:
+                BucketName: ${BUCKET_NAME:-sacrificial-lamb}
+                Key: aws.yml
+
+          /opt/files/ssm.txt:
+            source:
+              Ssm:
+                ParameterName: /cicd/shared/kms/arn
+            commands:
+              post:
+                - file /opt/files/ssm.txt
+
+          /opt/files/secret.txt:
+            source:
+              Secret:
+                SecretId: GHToken
+    depends_on:
+      - ecs-local-endpoints

@@ -8,21 +8,19 @@ import base64
 import json
 import re
 import subprocess
-import tempfile
 import warnings
 from os import environ, path
 from typing import Any
 
 import boto3
 import yaml
-from boto3 import client, session
+from boto3 import session
 from botocore.exceptions import ClientError
 from botocore.response import StreamingBody
-from yaml import Dumper, Loader
+from yaml import Loader
 
 from ecs_files_composer import input
-from ecs_files_composer.chmod import chmod
-from ecs_files_composer.common import LOG, keyisset, keypresent
+from ecs_files_composer.common import LOG, keyisset
 from ecs_files_composer.envsubst import expandvars
 
 
@@ -328,6 +326,7 @@ def init_config(
         raise Exception("No input source was provided")
     if not config_content:
         raise ImportError("Failed to import a configuration content")
+    LOG.debug(config_content)
     try:
         config = yaml.load(config_content, Loader=Loader)
     except yaml.YAMLError:
@@ -335,6 +334,7 @@ def init_config(
     except Exception:
         LOG.error("Input content is neither JSON nor YAML formatted")
         raise
+    LOG.debug(config)
     return config
 
 

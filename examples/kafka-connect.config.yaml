@@ -1,0 +1,13 @@
+files:
+  /opt/connect/truststore.jks:
+    mode: 644
+    source:
+      S3:
+        BucketName: ${CONNECT_BUCKET}
+        Key: /cluster/${ENV}/truststore.jks
+  /opt/connect/keystore.jks:
+    mode: 644
+    source:
+      S3:
+        BucketName: ${CONNECT_BUCKET}
+        Key: /cluster/${ENV}/keystore.jks

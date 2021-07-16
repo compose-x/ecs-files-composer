@@ -1,0 +1,72 @@
+---
+# Example for injecting files into Kafka connect
+# Here we need to retrieve JKS files for our connect clients to connect to Kafka cluster(s)
+
+version: "3.8"
+
+services:
+
+  files-sidecar:
+    deploy:
+      labels:
+        ecs.task.family: connect
+        ecs.depends.condition: SUCCESS
+    volumes:
+    - localshared:/opt/connect
+    environment:
+      ENV: dev
+      ECS_CONFIG_CONTENT: |
+
+        files:
+          /opt/connect/truststore.jks:
+            mode: 644
+            source:
+              S3:
+                BucketName: ${CONNECT_BUCKET}
+                Key: /cluster/${ENV}/truststore.jks
+          /opt/connect/keystore.jks:
+            mode: 644
+            source:
+              S3:
+                BucketName: ${CONNECT_BUCKET}
+                Key: /cluster/${ENV}/keystore.jks
+
+
+  # Here we have a very simple definition for the connect service. Note that we mount the same docker volume.
+  # To avoid confusion we mount it to the same mount point as the files-sidecar, but that could change to another one.
+  # With the deploy labels, we indicate to ECS Compose-X to group these two services into the same task definition.
+  # The depends_on helps us to define that the files sidecar need to be started first
+
+  kafka-connect:
+    image: public.ecr.aws/ews-network/confluentinc/cp-kafka-connect:6.2.0
+    volumes:
+    - localshared:/opt/connect/
+
+    deploy:
+      resources:
+        reservations:
+          cpus: "2.0"
+          memory: 2GB
+        limits:
+          cpus: "2.0"
+          memory: "3.5GB"
+      labels:
+        ecs.task.family: connect
+    depends_on:
+      - files-sidecar
+
+# The following section works with ECS Compose-X which will retrieve information about the bucket in the account,
+# provide IAM access to the TaskRole and expose an environment variable CONNECT_BUCKET to the files-sidecar.
+
+x-s3:
+  connect-bucket:
+    Lookup:
+      Tags:
+        - BucketName: connect-bucket
+    Settings:
+      EnvNames: CONNECT_BUCKET
+    Services:
+      - name: files-sidecar
+        access:
+          bucket: ListOnly
+          objects: ReadOnly

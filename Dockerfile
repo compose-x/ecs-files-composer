@@ -18,4 +18,3 @@ WORKDIR /app
 RUN echo $PATH ; pip install pip -U --no-cache-dir && pip install wheel --no-cache-dir && pip install *.whl --no-cache-dir
 WORKDIR /
 ENTRYPOINT ["ecs_files_composer"]
-CMD ["-h"]

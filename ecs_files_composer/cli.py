@@ -37,9 +37,10 @@ def main():
     if not (args.env_var or args.ssm_config or args.s3_config or args.file_path) and environ.get(
         "ECS_CONFIG_CONTENT", None
     ):
-        config = environ.get("ECS_CONFIG_CONTENT")
+        config = init_config(env_var="ECS_CONFIG_CONTENT")
+        print("Config from default ECS_CONFIG_CONTENT", config)
     elif args.env_var:
-        config = environ.get(args.env_var)
+        config = init_config(env_var=args.env_var)
     elif args.file_path:
         config = init_config(file_path=args.file_path)
     elif args.ssm_config:
