@@ -196,7 +196,6 @@ class File(input.FileDef, object):
         :param input.IamOverrideDef iam_override:
         :return:
         """
-        print(self.source)
         if self.source.url:
             self.handle_http_content()
         elif self.source.ssm:
@@ -266,8 +265,6 @@ class File(input.FileDef, object):
             req = requests.get(self.source.url.url)
         else:
             req = requests.get(self.source.url.url, auth=(self.source.url.username, self.source.url.password))
-
-        print(req.status_code)
         try:
             req.raise_for_status()
             self.write_content(as_bytes=True, bytes_content=req.content)
