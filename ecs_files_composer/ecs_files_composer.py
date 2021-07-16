@@ -13,6 +13,7 @@ from os import environ, path
 from typing import Any
 
 import boto3
+import requests
 import yaml
 from boto3 import session
 from botocore.exceptions import ClientError
@@ -146,7 +147,9 @@ class SecretFetcher(AwsResourceHandler):
         :param input.SecretDef secret:
         :return:
         """
-        params = {"SecretId": expandvars(secret.secret_id)}
+        secret_id = expandvars(secret.secret_id)
+        params = {"SecretId": secret_id}
+        LOG.debug(f"Retrieving secretsmanager://{secret_id}")
         if secret.version_id:
             params["VersionId"] = secret.version_id
         if secret.version_stage:
@@ -194,7 +197,7 @@ class File(input.FileDef, object):
         :return:
         """
         if self.source.url:
-            pass
+            self.handle_http_content()
         elif self.source.ssm:
             self.handle_ssm_source(iam_override)
         elif self.source.s3:
@@ -217,6 +220,7 @@ class File(input.FileDef, object):
         :return:
         """
         parameter_name = expandvars(self.source.ssm.parameter_name)
+        LOG.debug(f"Retrieving ssm://{parameter_name}")
         if self.source.ssm.iam_override:
             fetcher = SsmFetcher(iam_config_object=self.source.ssm.iam_override)
         else:
@@ -232,6 +236,7 @@ class File(input.FileDef, object):
         """
         bucket_name = expandvars(self.source.s3.bucket_name)
         key = expandvars(self.source.s3.key)
+        LOG.debug(f"Retrieving s3://{bucket_name}/{key}")
         if self.source.s3.iam_override:
             fetcher = S3Fetcher(iam_config_object=self.source.s3.iam_override)
         else:
@@ -251,10 +256,26 @@ class File(input.FileDef, object):
             fetcher = SecretFetcher(iam_config_object=iam_override)
         self.content = fetcher.get_content(self.source.secret)
 
+    def handle_http_content(self):
+        """
+        Fetches the content from a provided URI
+
+        """
+        if not self.source.url.username or not self.source.url.password:
+            req = requests.get(self.source.url.url)
+        else:
+            req = requests.get(self.source.url.url, auth=(self.source.url.username, self.source.url.password))
+        try:
+            req.raise_for_status()
+            self.write_content(as_bytes=True, bytes_content=req.content)
+        except requests.exceptions.HTTPError as e:
+            LOG.error(e)
+            raise
+
     def set_unix_settings(self):
         """
         Applies UNIX settings to given file
-        :return:
+
         """
         cmd = ["chmod", self.mode, self.path]
         try:
@@ -277,7 +298,7 @@ class File(input.FileDef, object):
             else:
                 raise
 
-    def write_content(self, decode=False):
+    def write_content(self, decode=False, as_bytes=False, bytes_content=None):
         if isinstance(self.content, str):
             if decode and self.encoding == input.Encoding["base64"]:
                 with open(self.path, "wb") as file_fd:
@@ -288,6 +309,9 @@ class File(input.FileDef, object):
         elif isinstance(self.content, StreamingBody):
             with open(self.path, "wb") as file_fd:
                 file_fd.write(self.content.read())
+        elif as_bytes and bytes_content:
+            with open(self.path, "wb") as file_fd:
+                file_fd.write(bytes_content)
 
 
 def init_config(
