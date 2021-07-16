@@ -13,6 +13,7 @@ from os import environ, path
 from typing import Any
 
 import boto3
+import requests
 import yaml
 from boto3 import session
 from botocore.exceptions import ClientError
@@ -195,8 +196,9 @@ class File(input.FileDef, object):
         :param input.IamOverrideDef iam_override:
         :return:
         """
+        print(self.source)
         if self.source.url:
-            pass
+            self.handle_http_content()
         elif self.source.ssm:
             self.handle_ssm_source(iam_override)
         elif self.source.s3:
@@ -255,10 +257,28 @@ class File(input.FileDef, object):
             fetcher = SecretFetcher(iam_config_object=iam_override)
         self.content = fetcher.get_content(self.source.secret)
 
+    def handle_http_content(self):
+        """
+        Fetches the content from a provided URI
+
+        """
+        if not self.source.url.username or not self.source.url.password:
+            req = requests.get(self.source.url.url)
+        else:
+            req = requests.get(self.source.url.url, auth=(self.source.url.username, self.source.url.password))
+
+        print(req.status_code)
+        try:
+            req.raise_for_status()
+            self.write_content(as_bytes=True, bytes_content=req.content)
+        except requests.exceptions.HTTPError as e:
+            LOG.error(e)
+            raise
+
     def set_unix_settings(self):
         """
         Applies UNIX settings to given file
-        :return:
+
         """
         cmd = ["chmod", self.mode, self.path]
         try:
@@ -281,7 +301,7 @@ class File(input.FileDef, object):
             else:
                 raise
 
-    def write_content(self, decode=False):
+    def write_content(self, decode=False, as_bytes=False, bytes_content=None):
         if isinstance(self.content, str):
             if decode and self.encoding == input.Encoding["base64"]:
                 with open(self.path, "wb") as file_fd:
@@ -292,6 +312,9 @@ class File(input.FileDef, object):
         elif isinstance(self.content, StreamingBody):
             with open(self.path, "wb") as file_fd:
                 file_fd.write(self.content.read())
+        elif as_bytes and bytes_content:
+            with open(self.path, "wb") as file_fd:
+                file_fd.write(bytes_content)
 
 
 def init_config(

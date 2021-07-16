@@ -91,7 +91,7 @@
             "type": "object",
             "properties": {
                 "Url": {
-                    "type": "string"
+                    "$ref": "#/definitions/UrlDef"
                 },
                 "Ssm": {
                     "$ref": "#/definitions/SsmDef"
@@ -101,6 +101,21 @@
                 },
                 "Secret": {
                     "$ref": "#/definitions/SecretDef"
+                }
+            }
+        },
+        "UrlDef": {
+            "type": "object",
+            "properties": {
+                "Url": {
+                    "type": "string",
+                    "format": "uri"
+                },
+                "Username": {
+                    "type": "string"
+                },
+                "Password": {
+                    "type": "string"
                 }
             }
         },
