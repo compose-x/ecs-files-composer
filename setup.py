@@ -76,7 +76,7 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/compose-x/ecs-files-composer",
-    version="0.0.1",
+    version="0.1.0",
     zip_safe=False,
     license="MPL-2.0",
 )
