@@ -146,7 +146,9 @@ class SecretFetcher(AwsResourceHandler):
         :param input.SecretDef secret:
         :return:
         """
-        params = {"SecretId": expandvars(secret.secret_id)}
+        secret_id = expandvars(secret.secret_id)
+        params = {"SecretId": secret_id}
+        LOG.debug(f"Retrieving secretsmanager://{secret_id}")
         if secret.version_id:
             params["VersionId"] = secret.version_id
         if secret.version_stage:
@@ -217,6 +219,7 @@ class File(input.FileDef, object):
         :return:
         """
         parameter_name = expandvars(self.source.ssm.parameter_name)
+        LOG.debug(f"Retrieving ssm://{parameter_name}")
         if self.source.ssm.iam_override:
             fetcher = SsmFetcher(iam_config_object=self.source.ssm.iam_override)
         else:
@@ -232,6 +235,7 @@ class File(input.FileDef, object):
         """
         bucket_name = expandvars(self.source.s3.bucket_name)
         key = expandvars(self.source.s3.key)
+        LOG.debug(f"Retrieving s3://{bucket_name}/{key}")
         if self.source.s3.iam_override:
             fetcher = S3Fetcher(iam_config_object=self.source.s3.iam_override)
         else:
