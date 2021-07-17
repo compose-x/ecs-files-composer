@@ -10,6 +10,8 @@ ECS Files Composer
 .. image:: https://img.shields.io/pypi/v/ecs_files_composer.svg
         :target: https://pypi.python.org/pypi/ecs_files_composer
 
+.. image:: https://codebuild.eu-west-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiRWk3VUhxUi9peEdZRGs2cGFiTk5XM0VDK1FEQTBMN2JTdHh5b091NTVVdFd3RmpoM1lpdGkrTGtTZDJzVCt5dDBCc3Zsc0dXWHI5RHJRSG82UFJNdUJzPSIsIml2UGFyYW1ldGVyU3BlYyI6InJlYXlBWStNMDVZNEoyMnQiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=main
+
 
 What does it do?
 =================
@@ -64,8 +66,8 @@ docker
 
 .. code-block:: bash
 
-    docker run public.ecr.aws/compose-x/ecs-files-composer:v0.1.1 -h
-    docker run -v $PWD:/ /var/tmp:/public.ecr.aws/compose-x/ecs-files-composer:v0.1.1 -f files.yaml
+    docker run public.ecr.aws/compose-x/ecs-files-composer:${VERSION:-latest}
+    docker run -v $PWD:/ /var/tmp:/public.ecr.aws/compose-x/ecs-files-composer:${VERSION:-latest} -f files.yaml
 
 .. attention::
 
