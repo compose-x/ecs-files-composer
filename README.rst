@@ -14,10 +14,6 @@ ECS Files Composer
 .. image:: https://codebuild.eu-west-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiRWk3VUhxUi9peEdZRGs2cGFiTk5XM0VDK1FEQTBMN2JTdHh5b091NTVVdFd3RmpoM1lpdGkrTGtTZDJzVCt5dDBCc3Zsc0dXWHI5RHJRSG82UFJNdUJzPSIsIml2UGFyYW1ldGVyU3BlYyI6InJlYXlBWStNMDVZNEoyMnQiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=main
 
 
-.. seealso::
-
-    `Full official documentation <https://docs.files-composer.compose-x.io/index.html>`__
-
 What does it do?
 =================
 
@@ -47,6 +43,23 @@ files it needs.
 How to use it ?
 =================
 
+`Full official documentation <https://docs.files-composer.compose-x.io/index.html>`__
+
+
+Docker
+----------------
+
+.. code-block:: bash
+
+    docker run public.ecr.aws/compose-x/ecs-files-composer:${VERSION:-latest} -h
+    docker run -v $PWD:/ /var/tmp,:/public.ecr.aws/compose-x/ecs-files-composer:${VERSION:-latest} -f files.yaml
+
+.. attention::
+
+    The default user is root to avoid running into issues when using chmod/chown and other commands.
+    Change behaviour at your own risks.
+
+
 CLI
 ------------
 
@@ -65,21 +78,3 @@ CLI
                             Configuration for execution is in an SSM Parameter
       --from-s3 S3_CONFIG   Configuration for execution is in an S3
       --role-arn ROLE_ARN   The Role ARN to use for the configuration initialization
-
-docker
-----------------
-
-.. code-block:: bash
-
-    docker run public.ecr.aws/compose-x/ecs-files-composer:${VERSION:-latest} -h
-    docker run -v $PWD:/ /var/tmp,:/public.ecr.aws/compose-x/ecs-files-composer:${VERSION:-latest} -f files.yaml
-
-.. attention::
-
-    The default user is root to avoid running into issues when using chmod/chown and other commands.
-    Change behaviour at your own risks.
-
-docker-compose
----------------
-
-.. literalinclude:: docker-compose.yaml
