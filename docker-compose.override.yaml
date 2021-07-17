@@ -47,5 +47,7 @@ services:
             source:
               Secret:
                 SecretId: GHToken
+#    command: --from-s3 s3://sacrificial-lamb/test.yaml
+
     depends_on:
       - ecs-local-endpoints

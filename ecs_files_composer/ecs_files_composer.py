@@ -315,7 +315,14 @@ class File(input.FileDef, object):
 
 
 def init_config(
-    raw=None, file_path=None, env_var=None, ssm_parameter=None, s3_config=None, role_arn=None, external_id=None
+    raw=None,
+    file_path=None,
+    env_var=None,
+    ssm_parameter=None,
+    s3_config=None,
+    secret_config=None,
+    role_arn=None,
+    external_id=None,
 ):
     """
     Function to initialize the configuration
@@ -325,12 +332,13 @@ def init_config(
     :param str env_var:
     :param str ssm_parameter:
     :param str s3_config:
+    :param str secret_config:
     :param str role_arn:
     :param str external_id:
     :return: The ECS Config description
     :rtype: dict
     """
-    if ssm_parameter or s3_config:
+    if ssm_parameter or s3_config or secret_config:
         role_arn = environ.get("CONFIG_IAM_ROLE_ARN", role_arn)
         external_id = environ.get("CONFIG_IAM_EXTERNAL_ID", None)
     if ssm_parameter:
@@ -339,6 +347,9 @@ def init_config(
     elif s3_config:
         config_client = S3Fetcher(role_arn, external_id)
         config_content = config_client.get_content(s3_uri=s3_config).read()
+    elif secret_config:
+        config_client = SecretFetcher(role_arn, external_id)
+        config_content = config_client.get_content(input.SecretDef(SecretId=secret_config))
     elif file_path:
         with open(path.abspath(file_path), "r") as file_fd:
             config_content = file_fd.read()

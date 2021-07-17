@@ -85,6 +85,7 @@ docker-compose
     installation
     input
     features
+    examples
     modules
     contributing
     authors
