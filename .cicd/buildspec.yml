@@ -72,10 +72,17 @@ phases:
               docker push ${PUBLIC_REGISTRY}/ecs-files-composer:${ARCH_TAG}
           done
       - |
-          docker manifest create ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}                    \
-              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-amd64              \
+          docker manifest create ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}  \
+              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-amd64       \
               --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-arm64v8
       - docker manifest push ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}
+      - |
+          if [ "${PRE}" == "tag" ]; then
+            docker manifest create ${PUBLIC_REGISTRY}/ecs-files-composer:latest  \
+              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-amd64     \
+              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-arm64v8;
+            docker manifest push ${PUBLIC_REGISTRY}/ecs-files-composer:latest
+          fi
 
     finally:
       - rm -rfv ~/.docker

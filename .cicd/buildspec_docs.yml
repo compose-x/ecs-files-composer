@@ -1,0 +1,33 @@
+﻿
+version: 0.2
+env:
+  shell: /bin/bash
+  variables:
+    USE_EPOCH: 0
+
+phases:
+  install:
+    runtime-versions:
+      python: "$(echo $PY_VERSION)"
+    commands:
+      - if [ -z ${AWS_ACCOUNT_ID+x} ]; then AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq -r .Account); fi
+      - if ! [ -z ${CODEBUILD_RESOLVED_SOURCE_VERSION+x} ]; then COMMIT_HASH=${CODEBUILD_RESOLVED_SOURCE_VERSION::7}; fi
+      - EPOCH=`date +'%Y%m%d'`
+      - VERSION=${COMMIT_HASH:=$EPOCH}
+      - if [ $USE_EPOCH -eq 1 ]; then VERSION=$EPOCH; fi
+      - |
+          if ! [ -z "${CODEBUILD_WEBHOOK_TRIGGER+x}" ]; then
+            echo TRIGGER is $CODEBUILD_WEBHOOK_TRIGGER
+            PRE=`echo $CODEBUILD_WEBHOOK_TRIGGER|cut -d '/' -f 1`;
+            echo PRE is $PRE
+            echo VERSION is $VERSION
+            if [ "${PRE}" == "tag" ]; then VERSION=`echo $CODEBUILD_WEBHOOK_TRIGGER|cut -d '/' -f 2`; TAG_RELEASE=1 ; fi
+          fi
+      - echo VERSION ends up being $VERSION
+      - pip install -r requirements_dev.txt
+      - pip install -r requirements.txt
+
+  build:
+    commands:
+      - make publish-docs
+      - aws cloudfront create-invalidation --distribution-id ${DISTRIBUTION_ID} --paths "/*"

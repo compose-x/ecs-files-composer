@@ -10,7 +10,7 @@ services:
   files-sidecar:
     volumes:
       - localshared:/opt/files/
-    image: public.ecr.aws/compose-x/ecs-files-composer:v0.0.1
+    image: public.ecr.aws/compose-x/ecs-files-composer:v0.1.1
     deploy:
       resources:
         # Smallest RAM size for a lambda

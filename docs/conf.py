@@ -47,7 +47,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'ECS Config Composer'
+project = 'ECS Files Composer'
 copyright = "2021, John Preston"
 author = "John Preston"
 
@@ -100,9 +100,10 @@ autosummary_generate = True
 autoclass_content = "class"
 
 sitemap_locales = ["en"]
-html_baseurl = "https://docs"
+html_baseurl = "https://docs.files-composer.compose-x.io"
 
 extensions.append("sphinx_material")
+extensions.append("sphinx-jsonschema")
 html_theme_path = sphinx_material.html_theme_path()
 html_context = sphinx_material.get_html_context()
 html_theme = "sphinx_material"
@@ -112,12 +113,12 @@ html_theme = "sphinx_material"
 #
 html_theme_options = {
     # Set the name of the project to appear in the navigation.
-    "nav_title": "ECS Config Composer",
+    "nav_title": "ECS Files Composer",
     # Set you GA account ID to enable tracking
     # 'google_analytics_account': 'UA-XXXXX',
     # Specify a base_url used to generate sitemap.xml. If not
     # specified, then no sitemap will be built.
-    "base_url": "https://docs",
+    "base_url": "https://https://docs.files-composer.compose-x.io",
     "html_minify": False,
     "html_prettify": True,
     "css_minify": True,
@@ -125,8 +126,8 @@ html_theme_options = {
     "color_primary": "blue",
     "color_accent": "light-blue",
     # Set the repo location to get a badge with stats
-    "repo_url": "https://github.com/compose-x/ecs-fles-composer/",
-    "repo_name": "compose-x/ecs-fles-composer",
+    "repo_url": "https://github.com/compose-x/ecs-files-composer/",
+    "repo_name": "compose-x/ecs-files-composer",
     "repo_type": "github",
     # Visible levels of the global TOC; -1 means unlimited
     "globaltoc_depth": 2,
@@ -170,14 +171,14 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass
 # [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'ecs_files_composer.tex', 'ECS Config Composer Documentation', 'John Preston', 'manual'),
+    (master_doc, 'ecs_files_composer.tex', 'ECS Files Composer Documentation', 'John Preston', 'manual'),
 ]
 
 # -- Options for manual page output ------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, 'ecs_files_composer', 'ECS Config Composer Documentation', [author], 1)]
+man_pages = [(master_doc, 'ecs_files_composer', 'ECS Files Composer Documentation', [author], 1)]
 
 # -- Options for Texinfo output ----------------------------------------
 
@@ -188,7 +189,7 @@ texinfo_documents = [
     (
         master_doc,
         'ecs_files_composer',
-        'ECS Config Composer Documentation',
+        'ECS Files Composer Documentation',
         author,
         'ecs_files_composer',
         'One line description of project.',

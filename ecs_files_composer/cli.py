@@ -29,6 +29,12 @@ def main():
         "--from-ssm", dest="ssm_config", help="Configuration for execution is in an SSM Parameter", required=False
     )
     options.add_argument("--from-s3", dest="s3_config", required=False, help="Configuration for execution is in an S3")
+    options.add_argument(
+        "--from-secrets",
+        dest="secret_config",
+        required=False,
+        help="Configuration for execution is in an AWS Secrets Manager",
+    )
     parser.add_argument("--role-arn", help="The Role ARN to use for the configuration initialization", required=False)
     parser.add_argument("_", nargs="*")
     args = parser.parse_args()
@@ -46,6 +52,8 @@ def main():
         config = init_config(ssm_parameter=args.ssm_config)
     elif args.s3_config:
         config = init_config(s3_config=args.s3_config)
+    elif args.secret_config:
+        config = init_config(secret_config=args.secret_config)
     else:
         raise parser.error("You must specify where the execution configuration comes from or set ECS_CONFIG_CONTENT.")
 

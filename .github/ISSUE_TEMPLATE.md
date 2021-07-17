@@ -1,4 +1,4 @@
-* ECS Config Composer version:
+* ECS Files Composer version:
 * Python version:
 * Operating System:
 

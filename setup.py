@@ -17,7 +17,7 @@ try:
         readme = readme_file.read()
         readme = REF_REGX.sub("", readme)
 except FileNotFoundError:
-    readme = "ECS Config Composer"
+    readme = "ECS Files Composer"
 
 try:
     with open(f"{DIR_HERE}/HISTORY.rst", encoding="utf-8") as history_file:
