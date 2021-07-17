@@ -32,7 +32,7 @@ import ecs_files_composer
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx-jsonschema']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -100,9 +100,10 @@ autosummary_generate = True
 autoclass_content = "class"
 
 sitemap_locales = ["en"]
-html_baseurl = "https://docs"
+html_baseurl = "https://docs.files-composer.compose-x.io"
 
 extensions.append("sphinx_material")
+extensions.append("sphinx-jsonschema")
 html_theme_path = sphinx_material.html_theme_path()
 html_context = sphinx_material.get_html_context()
 html_theme = "sphinx_material"
@@ -117,7 +118,7 @@ html_theme_options = {
     # 'google_analytics_account': 'UA-XXXXX',
     # Specify a base_url used to generate sitemap.xml. If not
     # specified, then no sitemap will be built.
-    "base_url": "https://docs",
+    "base_url": "https://https://docs.files-composer.compose-x.io",
     "html_minify": False,
     "html_prettify": True,
     "css_minify": True,
@@ -131,7 +132,7 @@ html_theme_options = {
     # Visible levels of the global TOC; -1 means unlimited
     "globaltoc_depth": 2,
     # If False, expand all TOC entries
-    "globaltoc_collapse": True,
+    "globaltoc_collapse": False,
     # If True, show hidden TOC entries
     "globaltoc_includehidden": False,
 }

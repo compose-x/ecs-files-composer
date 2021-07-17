@@ -1,5 +1,5 @@
 .. meta::
-    :description: ECS Files Composer files sources
+    :description: ECS Files Composer features
     :keywords: AWS, AWS ECS, Docker, Compose, docker-compose, AWS S3, AWS SSM, Secrets, Configuration
 
 .. _sources:
@@ -19,6 +19,7 @@ The IAM override defined the closest to the resource to retrieve is used. See :r
 AWS S3 Source
 ===============
 
+
 This allows you to define an S3 source with the Bucket name and Object key that you want to retrieve.
 
 .. hint::
@@ -30,6 +31,7 @@ This allows you to define an S3 source with the Bucket name and Object key that 
 
     Docker images meant to be immutable and light, we recommend to keep the files you retrieve from AWS S3 light to avoid
     complications and delay the startup of your applications.
+
 
 AWS SSM Source
 ==============

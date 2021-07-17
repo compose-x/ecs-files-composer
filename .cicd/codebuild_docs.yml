@@ -1,0 +1,173 @@
+---
+Description: >-
+  Pipeline to release Lambda layers publicly when new release is created
+
+Metadata:
+  Author: https://github.com/johnpreston
+
+Parameters:
+  RepositoryOrganization:
+    Type: String
+    Default: compose-x
+
+  RepositoryProvider:
+    Type: String
+    AllowedValues:
+      - GitHub
+      - CodeCommit
+    Default: GitHub
+  RepositoryName:
+    Type: String
+
+  BuildLogsRetentionDays:
+    Type: Number
+    AllowedValues: [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]
+    Default: 14
+
+  ReferenceBranchName:
+    Type: String
+    Default: main
+
+  DocsBuildspecFile:
+    Type: String
+    Default: .cicd/buildspec_docs.yml
+
+  DocsBucketName:
+    Type: String
+
+  CftDistributionId:
+    Type: String
+
+Mappings:
+  RepoUrlPrefixes:
+    GitHub:
+      Prefix: https://github.com/
+
+Conditions:
+  UseGitHub: !Equals [ !Ref RepositoryProvider, 'GitHub']
+  UseCodeCommit: !Equals [ !Ref RepositoryProvider, 'CodeCommit']
+
+Resources:
+  BuildLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub 'codebuild/${RepositoryName}/${AWS::StackName}'
+      RetentionInDays: !Ref BuildLogsRetentionDays
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - !Sub 'codebuild.${AWS::URLSuffix}'
+      Policies:
+        - PolicyName: ContentAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: CloudFrontAccess
+                Effect: Allow
+                Action:
+                  - cloudfront:CreateInvalidation
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${CftDistributionId}'
+              - Sid: S3ObjectsAccess
+                Effect: Allow
+                Action:
+                  - s3:PutObject*
+                  - s3:GetObject*
+                  - s3:DeleteObject*
+                Resource:
+                  - !Sub "arn:${AWS::Partition}:s3:::${DocsBucketName}/*"
+              - Sid: S3BucketsAccess
+                Effect: Allow
+                Action:
+                  - s3:ListBucket
+                Resource:
+                  - !Sub "arn:${AWS::Partition}:s3:::${DocsBucketName}"
+              - Sid: CloudWatchLogs
+                Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub '${BuildLogsGroup.Arn}'
+              - Sid: CodeBuildReportsAccess
+                Effect: Allow
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:codebuild:${AWS::Region}:${AWS::AccountId}:report-group/*'
+                Action:
+                  - codebuild:UpdateReportGroup
+                  - codebuild:CreateReportGroup
+                  - codebuild:CreateReport
+                  - codebuild:UpdateReport
+                  - codebuild:BatchPut*
+              - Sid: CodeBuildBatch
+                Effect: Allow
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:codebuild:${AWS::Region}:${AWS::AccountId}:*'
+                Action:
+                  - codebuild:StartBuild
+                  - codebuild:RetryBuild
+
+
+  DocsImagesBuild:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      ServiceRole: !GetAtt 'CodeBuildRole.Arn'
+      Description: !Sub 'Publishes ${RepositoryName} new documentation'
+      LogsConfig:
+        CloudWatchLogs:
+          GroupName: !Ref BuildLogsGroup
+          Status: ENABLED
+          StreamName: docker-builds
+      BadgeEnabled: True
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:5.0
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: PY_VERSION
+            Type: PLAINTEXT
+            Value: 3.8
+          - Type: PLAINTEXT
+            Name: DOCS_BUCKET
+            Value: !Ref DocsBucketName
+          - Type: PLAINTEXT
+            Name: DISTRIBUTION_ID
+            Value: !Ref CftDistributionId
+      Source:
+        Type: GITHUB
+        ReportBuildStatus: True
+        Location: !If
+          - UseGitHub
+          - !Sub 'https://github.com/${RepositoryOrganization}/${RepositoryName}'
+          - !Sub 'https://codecommit.${AWS::Region}.${AWS::URLSuffix}'
+        InsecureSsl: False
+        BuildSpec: !Ref DocsBuildspecFile
+      Triggers:
+        Webhook: True
+#        BuildType: BUILD_BATCH
+        FilterGroups:
+          - - Type: EVENT
+              Pattern: "PUSH"
+              ExcludeMatchedPattern: False
+            - Type: HEAD_REF
+              Pattern: !Sub '^refs/tags/v.*$'
+              ExcludeMatchedPattern: False
+#          - - Type: EVENT
+#              Pattern: "PULL_REQUEST_MERGED"
+#              ExcludeMatchedPattern: False
+#            - Type: HEAD_REF
+#              Pattern: '^refs/heads/.*$'
+#              ExcludeMatchedPattern: False
+#            - Type: BASE_REF
+#              Pattern: !Sub '^refs/heads/${ReferenceBranchName}$'
+#              ExcludeMatchedPattern: False

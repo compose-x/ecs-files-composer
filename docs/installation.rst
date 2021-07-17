@@ -1,8 +1,40 @@
+.. meta::
+    :description: ECS Files Composer install
+    :keywords: AWS, AWS ECS, Docker, Compose, docker-compose, AWS S3, AWS SSM, Secrets, Configuration
+
 .. highlight:: shell
 
 ============
 Installation
 ============
+
+Docker
+-------
+
+.. code-block:: console
+
+    docker pull public.ecr.aws/compose-x/ecs-files-composer:${VERSION:-latest}
+
+
+Docker Compose
+---------------
+
+.. code-block:: yaml
+
+    version: "3.8"
+    volumes:
+      localshared:
+
+    services:
+      files-composer:
+        image: public.ecr.aws/compose-x/ecs-files-composer:${VERSION:-latest}
+        deploy:
+          resources:
+            limits:
+              cpus: 0.1
+              memory: 128M
+        volumes:
+          - localshared:/opt/files/
 
 
 Stable release

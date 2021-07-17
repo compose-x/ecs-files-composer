@@ -141,11 +141,10 @@ JSON Schema
 
 The input for ECS Files Composer has to follow the JSON Schema below.
 
-.. jsonschema::../ecs-files-input.json
+.. literalinclude:: ../ecs-files-input.json
+    :language: json
 
 .. _iam_override:
-
-
 
 AWS IAM Override
 =================
@@ -210,12 +209,16 @@ then apply the IamOverride at that source level, as follows.
             BucketName: some-other-other-bucket
             Key: file.txt
 
-In the above example, to retrieve /path/to/file1, the program will attempt to assume role and use **arn:aws:iam::012345678901:role/role-name**,
-same logic applies for /path/to/file2, and  /path/to/file3 will use the default credentials found by the SDK.
+In the above example,
+
+* /path/to/file1, assume role and use **arn:aws:iam::012345678901:role/role-name**
+* /path/to/file2, assume role and use **arn:aws:iam::012345678901:role/role-name-2**
+* /path/to/file3, use the default credentials found by the SDK
+
 
 .. attention::
 
-    If the SDK cannot find the credentials, the program will throw an exception.
+    If the SDK cannot find the credentials and an AWS Source is defined, the program will throw an exception.
 
 .. _env_var_subst:
 

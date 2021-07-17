@@ -1,5 +1,6 @@
-Welcome to ECS Files Composer's documentation!
-===============================================
+.. meta::
+    :description: ECS Files Composer input config
+    :keywords: AWS, AWS ECS, Docker, Compose, docker-compose, AWS S3, AWS SSM, Secrets, Configuration
 
 ===================
 ECS Files Composer
@@ -9,9 +10,6 @@ ECS Files Composer
 .. image:: https://img.shields.io/pypi/v/ecs_files_composer.svg
         :target: https://pypi.python.org/pypi/ecs_files_composer
 
-------------------------------------------------------------------------------------------------------
-Files and configuration handler to inject configuration files into volumes for docker containers.
-------------------------------------------------------------------------------------------------------
 
 What does it do?
 =================
@@ -22,7 +20,6 @@ to a given location, adding builtin capabilities to set file ownership, mode, an
 
 The configuration of the job to perform can be written in YAML or JSON (see examples), so long as they comply to a given
 schema.
-
 
 Why use it?
 ============
@@ -38,7 +35,7 @@ files it needs.
 
 .. hint::
 
-    This image can be used in any docker context, locally, on-premise, with AWS ECS / EKS or in other cloud platforms.
+    This app / docker image can be used in any context, locally, on-premise, with Docker, on AWS ECS / EKS or in other cloud platforms.
 
 How to use it ?
 =================
