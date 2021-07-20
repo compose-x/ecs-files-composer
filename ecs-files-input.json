@@ -24,7 +24,7 @@
     "definitions": {
         "FileDef": {
             "type": "object",
-            "additionalProperties": false,
+            "additionalProperties": true,
             "properties": {
                 "path": {
                     "type": "string"

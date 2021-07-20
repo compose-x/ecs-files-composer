@@ -10,9 +10,11 @@ import re
 import subprocess
 import warnings
 from os import environ, path
+from tempfile import TemporaryDirectory
 from typing import Any
 
 import boto3
+import jinja2
 import requests
 import yaml
 from boto3 import session
@@ -23,6 +25,7 @@ from yaml import Loader
 from ecs_files_composer import input
 from ecs_files_composer.common import LOG, keyisset
 from ecs_files_composer.envsubst import expandvars
+from ecs_files_composer.jinja2_filters import env
 
 
 def create_session_from_creds(tmp_creds, region=None):
@@ -170,6 +173,7 @@ class File(input.FileDef, object):
 
     def __init__(self, iam_override=None, **data: Any):
         super().__init__(**data)
+        self.templates_dir = None
 
     def handler(self, iam_override):
         """
@@ -178,6 +182,8 @@ class File(input.FileDef, object):
         :param input.IamOverrideDef iam_override:
         :return:
         """
+        if self.context and isinstance(self.context, input.Context) and self.context.value == "jinja2":
+            self.templates_dir = TemporaryDirectory()
         if self.commands and self.commands.pre:
             warnings.warn("Commands are not yet implemented", Warning)
         if self.source and not self.content:
@@ -185,6 +191,8 @@ class File(input.FileDef, object):
             self.write_content()
         if not self.source and self.content:
             self.write_content(decode=True)
+        if self.templates_dir:
+            self.render_jinja()
         self.set_unix_settings()
         if self.commands and self.commands.post:
             warnings.warn("Commands are not yet implemented", Warning)
@@ -272,6 +280,17 @@ class File(input.FileDef, object):
             LOG.error(e)
             raise
 
+    def render_jinja(self):
+        """
+        Allows to use the temp directory as environment base, the original file as source template, and render
+        a final template.
+        """
+        jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(self.templates_dir.name))
+        jinja_env.filters['env_override'] = env
+        template = jinja_env.get_template(path.basename(self.path))
+        self.content = template.render()
+        self.write_content(is_template=False)
+
     def set_unix_settings(self):
         """
         Applies UNIX settings to given file
@@ -298,19 +317,34 @@ class File(input.FileDef, object):
             else:
                 raise
 
-    def write_content(self, decode=False, as_bytes=False, bytes_content=None):
+    def write_content(self, is_template=True, decode=False, as_bytes=False, bytes_content=None):
+        """
+        Function to write the content retrieved to path.
+
+        :param bool is_template: Whether the content should be considered to be a template.
+        :param decode:
+        :param as_bytes:
+        :param bytes_content:
+        :return:
+        """
+        file_path = (
+            f"{self.templates_dir.name}/{path.basename(self.path)}"
+            if (self.templates_dir and is_template)
+            else self.path
+        )
+        LOG.info(f"Outputting {self.path} to {file_path}")
         if isinstance(self.content, str):
             if decode and self.encoding == input.Encoding["base64"]:
-                with open(self.path, "wb") as file_fd:
+                with open(file_path, "wb") as file_fd:
                     file_fd.write(base64.b64decode(self.content))
             else:
-                with open(self.path, "w") as file_fd:
+                with open(file_path, "w") as file_fd:
                     file_fd.write(self.content)
         elif isinstance(self.content, StreamingBody):
-            with open(self.path, "wb") as file_fd:
+            with open(file_path, "wb") as file_fd:
                 file_fd.write(self.content.read())
         elif as_bytes and bytes_content:
-            with open(self.path, "wb") as file_fd:
+            with open(file_path, "wb") as file_fd:
                 file_fd.write(bytes_content)
 
 
