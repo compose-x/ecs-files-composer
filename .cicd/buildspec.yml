@@ -45,6 +45,8 @@ phases:
       - if [ -z ${AWS_ACCOUNT_ID+x} ]; then AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq -r .Account); fi
       - REGISTRY_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION:-$AWS_DEFAULT_REGION}.amazonaws.com/
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${REGISTRY_URI}
+      - AWS_MARKET_REGISTRY=${MARKET_REPO_ACCOUNT_ID}.dkr.ecr.${MARKET_REPO_AWS_REGION}.amazonaws.com
+      - aws ecr get-login-password --region ${MARKET_REPO_AWS_REGION} | docker login --username AWS --password-stdin ${AWS_MARKET_REGISTRY}
       - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${PUBLIC_REGISTRY}
       - if ! [ -z ${CODEBUILD_RESOLVED_SOURCE_VERSION+x} ]; then COMMIT_HASH=${CODEBUILD_RESOLVED_SOURCE_VERSION::7}; fi
       - EPOCH=`date +'%Y%m%d'`
@@ -69,7 +71,11 @@ phases:
               echo Publish from ${REGISTRY_URI}ecs-files-composer:${ARCH_TAG}$ to ${PUBLIC_REGISTRY}/ecs-files-composer:${ARCH_TAG}
               docker pull ${REGISTRY_URI}ecs-files-composer:${ARCH_TAG}
               docker tag  ${REGISTRY_URI}ecs-files-composer:${ARCH_TAG} ${PUBLIC_REGISTRY}/ecs-files-composer:${ARCH_TAG}
+              docker tag  ${REGISTRY_URI}ecs-files-composer:${ARCH_TAG} ${AWS_MARKET_REGISTRY}/compose-x/files-composer:${ARCH_TAG}
+              docker tag  ${REGISTRY_URI}ecs-files-composer:${ARCH_TAG} ${AWS_MARKET_REGISTRY}/compose-x/ecs-files-composer:${ARCH_TAG}
               docker push ${PUBLIC_REGISTRY}/ecs-files-composer:${ARCH_TAG}
+              docker push ${AWS_MARKET_REGISTRY}/compose-x/files-composer:${ARCH_TAG}
+              docker push ${AWS_MARKET_REGISTRY}/compose-x/ecs-files-composer:${ARCH_TAG}
           done
       - |
           docker manifest create ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}  \
@@ -77,11 +83,31 @@ phases:
               --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-arm64v8
       - docker manifest push ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}
       - |
+          docker manifest create ${AWS_MARKET_REGISTRY}/compose-x/ecs-files-composer:${VERSION}   \
+              --amend ${AWS_MARKET_REGISTRY}/compose-x/ecs-files-composer:${VERSION}-amd64        \
+              --amend ${AWS_MARKET_REGISTRY}/compose-x/ecs-files-composer:${VERSION}-arm64v8
+      - docker manifest push ${AWS_MARKET_REGISTRY}/compose-x/ecs-files-composer:${VERSION}
+      - |
+          docker manifest create ${AWS_MARKET_REGISTRY}/compose-x/files-composer:${VERSION}   \
+              --amend ${AWS_MARKET_REGISTRY}/compose-x/files-composer:${VERSION}-amd64        \
+              --amend ${AWS_MARKET_REGISTRY}/compose-x/files-composer:${VERSION}-arm64v8
+      - docker manifest push ${AWS_MARKET_REGISTRY}/compose-x/files-composer:${VERSION}
+      - |
           if [ "${PRE}" == "tag" ]; then
             docker manifest create ${PUBLIC_REGISTRY}/ecs-files-composer:latest  \
               --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-amd64     \
               --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-arm64v8;
-            docker manifest push ${PUBLIC_REGISTRY}/ecs-files-composer:latest
+            docker manifest push ${PUBLIC_REGISTRY}/ecs-files-composer:latest;
+
+            docker manifest create ${AWS_MARKET_REGISTRY}/ecs-files-composer:latest   \
+              --amend ${AWS_MARKET_REGISTRY}/files-composer:${VERSION}-amd64          \
+              --amend ${AWS_MARKET_REGISTRY}/files-composer:${VERSION}-arm64v8;
+            docker manifest push ${AWS_MARKET_REGISTRY}/files-composer:latest;
+
+            docker manifest create ${AWS_MARKET_REGISTRY}/ecs-files-composer:latest  \
+              --amend ${AWS_MARKET_REGISTRY}/ecs-files-composer:${VERSION}-amd64     \
+              --amend ${AWS_MARKET_REGISTRY}/ecs-files-composer:${VERSION}-arm64v8;
+            docker manifest push ${AWS_MARKET_REGISTRY}/ecs-files-composer:latest;
           fi
 
     finally:
