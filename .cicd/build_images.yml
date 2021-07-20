@@ -3,7 +3,7 @@ version: 0.2
 env:
   shell: /bin/bash
   variables:
-    USE_EPOCH: 1
+    USE_EPOCH: 0
 
 phases:
   install:
