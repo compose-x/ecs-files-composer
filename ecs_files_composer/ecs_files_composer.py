@@ -285,7 +285,7 @@ class File(input.FileDef, object):
         Allows to use the temp directory as environment base, the original file as source template, and render
         a final template.
         """
-        jinja_env = Environment(loader=FileSystemLoader(self.templates_dir.name))
+        jinja_env = Environment(loader=FileSystemLoader(self.templates_dir.name), autoescape=True, auto_reload=False)
         jinja_env.filters['env_override'] = env
         template = jinja_env.get_template(path.basename(self.path))
         self.content = template.render()
