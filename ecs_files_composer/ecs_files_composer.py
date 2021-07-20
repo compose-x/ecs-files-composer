@@ -14,12 +14,12 @@ from tempfile import TemporaryDirectory
 from typing import Any
 
 import boto3
-import jinja2
 import requests
 import yaml
 from boto3 import session
 from botocore.exceptions import ClientError
 from botocore.response import StreamingBody
+from jinja2 import Environment, FileSystemLoader
 from yaml import Loader
 
 from ecs_files_composer import input
@@ -285,7 +285,7 @@ class File(input.FileDef, object):
         Allows to use the temp directory as environment base, the original file as source template, and render
         a final template.
         """
-        jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(self.templates_dir.name))
+        jinja_env = Environment(loader=FileSystemLoader(self.templates_dir.name))
         jinja_env.filters['env_override'] = env
         template = jinja_env.get_template(path.basename(self.path))
         self.content = template.render()
