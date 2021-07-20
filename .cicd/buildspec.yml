@@ -66,7 +66,7 @@ phases:
           for ARCH in "amd64" "arm64v8"; do
               ARCH_TAG=${VERSION}-${ARCH}
 
-              echo Publish from ${REGISTRY_URI}ecs-files-composer:${ARCH_TAG}$ to ${PUBLIC_REGISTRY}/ecs-files-composer:${ARCH_TAG}$
+              echo Publish from ${REGISTRY_URI}ecs-files-composer:${ARCH_TAG}$ to ${PUBLIC_REGISTRY}/ecs-files-composer:${ARCH_TAG}
               docker pull ${REGISTRY_URI}ecs-files-composer:${ARCH_TAG}
               docker tag  ${REGISTRY_URI}ecs-files-composer:${ARCH_TAG} ${PUBLIC_REGISTRY}/ecs-files-composer:${ARCH_TAG}
               docker push ${PUBLIC_REGISTRY}/ecs-files-composer:${ARCH_TAG}
