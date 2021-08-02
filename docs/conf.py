@@ -91,15 +91,12 @@ extensions += [
     "sphinx.ext.todo",
     "sphinx.ext.viewcode",
     "sphinx.ext.autodoc",
-    "sphinx_sitemap",
+    # "sphinx_sitemap",
 ]
 
 sitemap_locales = ["en"]
-html_theme = "sphinx_rtd_theme"
 autosummary_generate = True
 autoclass_content = "class"
-
-sitemap_locales = ["en"]
 html_baseurl = "https://docs.files-composer.compose-x.io/"
 
 extensions.append("sphinx_material")
