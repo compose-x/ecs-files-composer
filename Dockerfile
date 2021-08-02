@@ -1,6 +1,6 @@
 ARG ARCH=
 ARG PY_VERSION=3.8
-ARG BASE_IMAGE=public.ecr.aws/ews-network/python:${PY_VERSION}
+ARG BASE_IMAGE=public.ecr.aws/compose-x/python:${PY_VERSION}
 ARG LAMBDA_IMAGE=public.ecr.aws/lambda/python:latest
 FROM $BASE_IMAGE as builder
 
@@ -11,7 +11,8 @@ RUN python -m venv venv ; source venv/bin/activate ; pip install wheel;  python 
 
 FROM $BASE_IMAGE
 
-RUN yum upgrade -y
+RUN yum upgrade -y; yum install -y tar unzip xz gzip;\
+    yum autoremove -y; yum clean packages; yum clean headers; yum clean metadata; yum clean all; rm -rfv /var/cache/yum
 ENV PATH=/app/.local/bin:${PATH}
 COPY --from=builder /opt/dist/ecs_files_composer-*.whl ${LAMBDA_TASK_ROOT:-/app/}/
 WORKDIR /app
