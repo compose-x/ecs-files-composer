@@ -94,10 +94,7 @@ tag_template = "v{new_version}"
 # section containing the path of the file, relative to the
 # tbump.toml location.
 [[tool.tbump.file]]
-src = "setup.py"
-
-[[tool.tbump.file]]
-src = "setup.cfg"
+src = "pyproject.toml"
 
 [[tool.tbump.file]]
 src = "ecs_files_composer/__init__.py"
