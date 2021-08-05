@@ -41,9 +41,35 @@ def s3_files_config():
     }
 
 
+@pytest.fixture
+def simple_json_config_with_certs():
+    with open(f"{HERE}/RAW_CONTENT.txt", "r") as raw_fd:
+        raw_content = raw_fd.read()
+    return {
+        "files": {
+            "/tmp/test_raw.txt": {"content": raw_content},
+            "/tmp/test.txt": {"content": "THIS IS A TEST"},
+            "/tmp/dedoded.txt": {"content": "VEhJUyBJUyBFTkRPREVEIE1FU1NBR0U=", "encoding": "base64"},
+        },
+        "certificates": {
+            "x509": {
+                "/tmp/webserver": {
+                    "keyFileName": "server.key",
+                    "certFileName": "server.crt",
+                    "commonName": "nowhere.tld",
+                }
+            }
+        },
+    }
+
+
 def test_simple_job_import(simple_json_config):
     start_jobs(simple_json_config)
 
 
 def test_s3_files_simple(s3_files_config):
     start_jobs(s3_files_config)
+
+
+def test_simple_cert(simple_json_config_with_certs):
+    start_jobs(simple_json_config_with_certs)

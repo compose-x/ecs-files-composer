@@ -1,207 +1,285 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "object",
-    "typeName": "input",
-    "description": "Configuration input definition for ECS Files Composer",
-    "required": [
-        "files"
-    ],
-    "properties": {
-        "files": {
-            "type": "object",
-            "uniqueItems": true,
-            "patternProperties": {
-                "^/[\\x00-\\x7F]+$": {
-                    "$ref": "#/definitions/FileDef"
-                }
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "typeName": "input",
+  "description": "Configuration input definition for ECS Files Composer",
+  "required": [
+    "files"
+  ],
+  "properties": {
+    "files": {
+      "type": "object",
+      "uniqueItems": true,
+      "patternProperties": {
+        "^/[\\x00-\\x7F]+$": {
+          "$ref": "#/definitions/FileDef"
+        }
+      }
+    },
+    "certificates": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "x509": {
+          "uniqueItems": true,
+          "patternProperties": {
+            "^/[\\x00-\\x7F]+$": {
+              "$ref": "#/definitions/X509CertDef"
             }
+          }
+        }
+      }
+    },
+    "IamOverride": {
+      "type": "object",
+      "$ref": "#/definitions/IamOverrideDef"
+    }
+  },
+  "definitions": {
+    "FileDef": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string",
+          "description": "The raw content of the file to use"
+        },
+        "source": {
+          "$ref": "#/definitions/SourceDef"
+        },
+        "encoding": {
+          "type": "string",
+          "enum": [
+            "base64",
+            "plain"
+          ],
+          "default": "plain"
+        },
+        "group": {
+          "type": "string",
+          "description": "UNIX group name or GID owner of the file. Default to root(0)",
+          "default": "root"
+        },
+        "owner": {
+          "type": "string",
+          "description": "UNIX user or UID owner of the file. Default to root(0)",
+          "default": "root"
+        },
+        "mode": {
+          "type": "string",
+          "description": "UNIX file mode",
+          "default": "0644"
+        },
+        "context": {
+          "type": "string",
+          "enum": [
+            "plain",
+            "jinja2"
+          ],
+          "default": "plain"
+        },
+        "ignore_if_failed": {
+          "type": "boolean",
+          "description": "Whether or not the failure to retrieve the file should stop the execution",
+          "default": false
+        },
+        "commands": {
+          "type": "object",
+          "properties": {
+            "post": {
+              "$ref": "#/definitions/CommandsDef",
+              "description": "Commands to run after the file was retrieved"
+            },
+            "pre": {
+              "$ref": "#/definitions/CommandsDef",
+              "description": "Commands executed prior to the file being fetched, after `depends_on` completed"
+            }
+          }
+        }
+      }
+    },
+    "SourceDef": {
+      "type": "object",
+      "properties": {
+        "Url": {
+          "$ref": "#/definitions/UrlDef"
+        },
+        "Ssm": {
+          "$ref": "#/definitions/SsmDef"
+        },
+        "S3": {
+          "$ref": "#/definitions/S3Def"
+        },
+        "Secret": {
+          "$ref": "#/definitions/SecretDef"
+        }
+      }
+    },
+    "UrlDef": {
+      "type": "object",
+      "properties": {
+        "Url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "Username": {
+          "type": "string"
+        },
+        "Password": {
+          "type": "string"
+        }
+      }
+    },
+    "SsmDef": {
+      "type": "object",
+      "properties": {
+        "ParameterName": {
+          "type": "string"
         },
         "IamOverride": {
-            "type": "object",
-            "$ref": "#/definitions/IamOverrideDef"
+          "$ref": "#/definitions/IamOverrideDef"
         }
+      }
     },
-    "definitions": {
-        "FileDef": {
-            "type": "object",
-            "additionalProperties": true,
-            "properties": {
-                "path": {
-                    "type": "string"
-                },
-                "content": {
-                    "type": "string",
-                    "description": "The raw content of the file to use"
-                },
-                "source": {
-                    "$ref": "#/definitions/SourceDef"
-                },
-                "encoding": {
-                    "type": "string",
-                    "enum": [
-                        "base64",
-                        "plain"
-                    ],
-                    "default": "plain"
-                },
-                "group": {
-                    "type": "string",
-                    "description": "UNIX group name or GID owner of the file. Default to root(0)",
-                    "default": "root"
-                },
-                "owner": {
-                    "type": "string",
-                    "description": "UNIX user or UID owner of the file. Default to root(0)",
-                    "default": "root"
-                },
-                "mode": {
-                    "type": "string",
-                    "description": "UNIX file mode",
-                    "default": "0644"
-                },
-                "context": {
-                    "type": "string",
-                    "enum": [
-                        "plain",
-                        "jinja2"
-                    ],
-                    "default": "plain"
-                },
-                "ignore_if_failed": {
-                    "type": "boolean",
-                    "description": "Whether or not the failure to retrieve the file should stop the execution",
-                    "default": false
-                },
-                "commands": {
-                    "type": "object",
-                    "properties": {
-                        "post": {
-                            "$ref": "#/definitions/CommandsDef",
-                            "description": "Commands to run after the file was retrieved"
-                        },
-                        "pre": {
-                            "$ref": "#/definitions/CommandsDef",
-                            "description": "Commands executed prior to the file being fetched, after `depends_on` completed"
-                        }
-                    }
-                }
-            }
+    "SecretDef": {
+      "type": "object",
+      "required": [
+        "SecretId"
+      ],
+      "properties": {
+        "SecretId": {
+          "type": "string"
         },
-        "SourceDef": {
-            "type": "object",
-            "properties": {
-                "Url": {
-                    "$ref": "#/definitions/UrlDef"
-                },
-                "Ssm": {
-                    "$ref": "#/definitions/SsmDef"
-                },
-                "S3": {
-                    "$ref": "#/definitions/S3Def"
-                },
-                "Secret": {
-                    "$ref": "#/definitions/SecretDef"
-                }
-            }
+        "VersionId": {
+          "type": "string"
         },
-        "UrlDef": {
-            "type": "object",
-            "properties": {
-                "Url": {
-                    "type": "string",
-                    "format": "uri"
-                },
-                "Username": {
-                    "type": "string"
-                },
-                "Password": {
-                    "type": "string"
-                }
-            }
+        "VersionStage": {
+          "type": "string"
         },
-        "SsmDef": {
-            "type": "object",
-            "properties": {
-                "ParameterName": {
-                    "type": "string"
-                },
-                "IamOverride": {
-                    "$ref": "#/definitions/IamOverrideDef"
-                }
-            }
-        },
-        "SecretDef": {
-            "type": "object",
-            "required": [
-                "SecretId"
-            ],
-            "properties": {
-                "SecretId": {
-                    "type": "string"
-                },
-                "VersionId": {
-                    "type": "string"
-                },
-                "VersionStage": {
-                    "type": "string"
-                },
-                "IamOverride": {
-                    "$ref": "#/definitions/IamOverrideDef"
-                }
-            }
-        },
-        "S3Def": {
-            "type": "object",
-            "required": [
-                "BucketName",
-                "Key"
-            ],
-            "properties": {
-                "BucketName": {
-                    "type": "string",
-                    "description": "Name of the S3 Bucket"
-                },
-                "BucketRegion": {
-                    "type": "string",
-                    "description": "S3 Region to use. Default will ignore or retrieve via s3:GetBucketLocation"
-                },
-                "Key": {
-                    "type": "string",
-                    "description": "Full path to the file to retrieve"
-                },
-                "IamOverride": {
-                    "$ref": "#/definitions/IamOverrideDef"
-                }
-            }
-        },
-        "IamOverrideDef": {
-            "type": "object",
-            "description": "When source points to AWS, allows to indicate if another role should be used",
-            "properties": {
-                "RoleArn": {
-                    "type": "string"
-                },
-                "SessionName": {
-                    "type": "string",
-                    "default": "S3File@EcsConfigComposer",
-                    "description": "Name of the IAM session"
-                },
-                "ExternalId": {
-                    "type": "string",
-                    "description": "The External ID to use when using sts:AssumeRole"
-                },
-                "RegionName": {
-                    "type": "string"
-                }
-            }
-        },
-        "CommandsDef": {
-            "type": "array",
-            "description": "List of commands to run",
-            "items": {
-                "type": "string",
-                "description": "Shell command to run"
-            }
+        "IamOverride": {
+          "$ref": "#/definitions/IamOverrideDef"
         }
+      }
+    },
+    "S3Def": {
+      "type": "object",
+      "required": [
+        "BucketName",
+        "Key"
+      ],
+      "properties": {
+        "BucketName": {
+          "type": "string",
+          "description": "Name of the S3 Bucket"
+        },
+        "BucketRegion": {
+          "type": "string",
+          "description": "S3 Region to use. Default will ignore or retrieve via s3:GetBucketLocation"
+        },
+        "Key": {
+          "type": "string",
+          "description": "Full path to the file to retrieve"
+        },
+        "IamOverride": {
+          "$ref": "#/definitions/IamOverrideDef"
+        }
+      }
+    },
+    "IamOverrideDef": {
+      "type": "object",
+      "description": "When source points to AWS, allows to indicate if another role should be used",
+      "properties": {
+        "RoleArn": {
+          "type": "string"
+        },
+        "SessionName": {
+          "type": "string",
+          "default": "S3File@EcsConfigComposer",
+          "description": "Name of the IAM session"
+        },
+        "ExternalId": {
+          "type": "string",
+          "description": "The External ID to use when using sts:AssumeRole"
+        },
+        "RegionName": {
+          "type": "string"
+        }
+      }
+    },
+    "CommandsDef": {
+      "type": "array",
+      "description": "List of commands to run",
+      "items": {
+        "type": "string",
+        "description": "Shell command to run"
+      }
+    },
+    "X509CertDef": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "certFileName",
+        "keyFileName"
+      ],
+      "properties": {
+        "dir_path": {
+          "type": "string"
+        },
+        "emailAddress": {
+          "type": "string",
+          "format": "idn-email",
+          "default": "files-composer@compose-x.tld"
+        },
+        "commonName": {
+          "type": "string",
+          "format": "hostname"
+        },
+        "countryName": {
+          "type": "string",
+          "pattern": "^[A-Z]+$",
+          "default": "AW"
+        },
+        "localityName": {
+          "type": "string",
+          "default": "AWS"
+        },
+        "stateOrProvinceName": {
+          "type": "string",
+          "default": "AWS"
+        },
+        "organizationName": {
+          "type": "string",
+          "default": "AWS"
+        },
+        "organizationUnitName": {
+          "type": "string",
+          "default": "AWS"
+        },
+        "validityEndInSeconds": {
+          "type": "number",
+          "default": 8035200,
+          "description": "Validity before cert expires, in seconds. Default 3*31*24*60*60=3Months"
+        },
+        "keyFileName": {
+          "type": "string"
+        },
+        "certFileName": {
+          "type": "string"
+        },
+        "group": {
+          "type": "string",
+          "description": "UNIX group name or GID owner of the file. Default to root(0)",
+          "default": "root"
+        },
+        "owner": {
+          "type": "string",
+          "description": "UNIX user or UID owner of the file. Default to root(0)",
+          "default": "root"
+        }
+      }
     }
+  }
 }
