@@ -1,0 +1,9 @@
+files:
+  /tmp/required:
+    content: ""
+
+certificates:
+  x509:
+    /tmp/nginx:
+      keyFileName: nginx.key
+      certFileName: nginx.crt
