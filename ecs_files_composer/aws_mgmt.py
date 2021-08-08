@@ -101,6 +101,8 @@ class SsmFetcher(AwsResourceHandler):
     Class to handle SSM actions
     """
 
+    arn_re = re.compile(r"(?:^arn:aws(?:-[a-z]+)?:ssm:[\S]+:[0-9]+:parameter)(?P<name>/[\S]+)$")
+
     def __init__(self, role_arn=None, external_id=None, region=None, iam_config_object=None):
         super().__init__(role_arn, external_id, region, iam_config_object)
         self.client = self.client_session.client("ssm")
@@ -108,10 +110,13 @@ class SsmFetcher(AwsResourceHandler):
     def get_content(self, parameter_name):
         """
         Import the Content of a given parameter
+        If the parameter name is a valid ARN, parses and uses the name from ARN
 
         :param parameter_name:
         :return:
         """
+        if self.arn_re.match(parameter_name):
+            parameter_name = self.arn_re.match(parameter_name).group("name")
         try:
             parameter = self.client.get_parameter(Name=parameter_name, WithDecryption=True)
             return parameter["Parameter"]["Value"]
