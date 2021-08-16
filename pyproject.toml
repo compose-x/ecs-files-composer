@@ -28,7 +28,7 @@ requests = "^2.26.0"
 PyYAML = "^5.4.1"
 Jinja2 = "^3.0.1"
 jsonschema = "^3.2.0"
-compose-x-common = "^0.0.1"
+compose-x-common = {extras = ["aws"], version = "^0.1.0"}
 
 [tool.poetry.dev-dependencies]
 placebo = "^0.9.0"
