@@ -206,6 +206,17 @@
         },
         "RegionName": {
           "type": "string"
+        },
+        "AccessKeyId": {
+          "type": "string",
+          "description": "AWS Access Key Id to use for session"
+        },
+        "SecretAccessKey": {
+          "type": "string",
+          "description": "AWS Secret Key to use for session"
+        },
+        "SessionToken": {
+          "type": "string"
         }
       }
     },

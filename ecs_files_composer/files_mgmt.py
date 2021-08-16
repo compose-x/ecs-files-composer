@@ -38,7 +38,11 @@ class File(FileDef, object):
         :param ecs_files_composer.input.IamOverrideDef iam_override:
         :return:
         """
-        if self.context and isinstance(self.context, Context) and self.context.value == "jinja2":
+        if (
+            self.context
+            and isinstance(self.context, Context)
+            and self.context.value == "jinja2"
+        ):
             self.templates_dir = TemporaryDirectory()
         if self.commands and self.commands.pre:
             warnings.warn("Commands are not yet implemented", Warning)
@@ -67,7 +71,9 @@ class File(FileDef, object):
         elif self.source.s3:
             self.handle_s3_source(iam_override)
         elif self.source.secret:
-            LOG.warn("When using ECS, we recommend to use the Secrets in Task Definition")
+            LOG.warn(
+                "When using ECS, we recommend to use the Secrets in Task Definition"
+            )
             self.handle_secret_source(iam_override)
 
     def handle_url_source(self):
@@ -128,7 +134,10 @@ class File(FileDef, object):
         if not self.source.url.username or not self.source.url.password:
             req = requests.get(self.source.url.url)
         else:
-            req = requests.get(self.source.url.url, auth=(self.source.url.username, self.source.url.password))
+            req = requests.get(
+                self.source.url.url,
+                auth=(self.source.url.username, self.source.url.password),
+            )
         try:
             req.raise_for_status()
             self.write_content(as_bytes=True, bytes_content=req.content)
@@ -141,8 +150,12 @@ class File(FileDef, object):
         Allows to use the temp directory as environment base, the original file as source template, and render
         a final template.
         """
-        jinja_env = Environment(loader=FileSystemLoader(self.templates_dir.name), autoescape=True, auto_reload=False)
-        jinja_env.filters['env_override'] = env
+        jinja_env = Environment(
+            loader=FileSystemLoader(self.templates_dir.name),
+            autoescape=True,
+            auto_reload=False,
+        )
+        jinja_env.filters["env_override"] = env
         template = jinja_env.get_template(path.basename(self.path))
         self.content = template.render()
         self.write_content(is_template=False)
@@ -155,7 +168,11 @@ class File(FileDef, object):
         cmd = ["chmod", self.mode, self.path]
         try:
             res = subprocess.run(
-                cmd, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False
+                cmd,
+                universal_newlines=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                shell=False,
             )
         except subprocess.CalledProcessError:
             if self.ignore_if_failed:
@@ -165,7 +182,11 @@ class File(FileDef, object):
         cmd = ["chown", f"{self.owner}:{self.group}", self.path]
         try:
             res = subprocess.run(
-                cmd, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False
+                cmd,
+                universal_newlines=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                shell=False,
             )
         except subprocess.CalledProcessError:
             if self.ignore_if_failed:
@@ -173,7 +194,9 @@ class File(FileDef, object):
             else:
                 raise
 
-    def write_content(self, is_template=True, decode=False, as_bytes=False, bytes_content=None):
+    def write_content(
+        self, is_template=True, decode=False, as_bytes=False, bytes_content=None
+    ):
         """
         Function to write the content retrieved to path.
 

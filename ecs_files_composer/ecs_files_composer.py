@@ -53,7 +53,9 @@ def init_config(
         config_content = config_client.get_content(s3_uri=s3_config).read()
     elif secret_config:
         config_client = SecretFetcher(role_arn, external_id)
-        config_content = config_client.get_content(input.SecretDef(SecretId=secret_config))
+        config_content = config_client.get_content(
+            input.SecretDef(SecretId=secret_config)
+        )
     elif file_path:
         with open(path.abspath(file_path), "r") as file_fd:
             config_content = file_fd.read()

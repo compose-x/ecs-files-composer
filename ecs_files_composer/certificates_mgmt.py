@@ -60,15 +60,19 @@ class X509Certificate(X509CertDef, object):
         self.cert.gmtime_adj_notAfter(int(self.validity_end_in_seconds))
         self.cert.set_issuer(self.cert.get_subject())
         self.cert.set_pubkey(self.key)
-        self.cert.sign(self.key, 'sha512')
+        self.cert.sign(self.key, "sha512")
 
     def generate_cert_content(self):
         if not self.key:
             self.generate_key()
         if not self.cert:
             self.generate_cert()
-        self.cert_content = crypto.dump_certificate(crypto.FILETYPE_PEM, self.cert).decode("utf-8")
-        self.key_content = crypto.dump_privatekey(crypto.FILETYPE_PEM, self.key).decode("utf-8")
+        self.cert_content = crypto.dump_certificate(
+            crypto.FILETYPE_PEM, self.cert
+        ).decode("utf-8")
+        self.key_content = crypto.dump_privatekey(crypto.FILETYPE_PEM, self.key).decode(
+            "utf-8"
+        )
 
     def set_cert_files(self):
         if not self.cert_content or not self.key_content:

@@ -16,7 +16,12 @@ def main():
     parser = argparse.ArgumentParser()
     options = parser.add_mutually_exclusive_group()
     options.add_argument(
-        "-f", "--from-file", help="Configuration for execution from a file", type=str, required=False, dest="file_path"
+        "-f",
+        "--from-file",
+        help="Configuration for execution from a file",
+        type=str,
+        required=False,
+        dest="file_path",
     )
     options.add_argument(
         "-e",
@@ -26,22 +31,34 @@ def main():
         help="Configuration for execution is in an environment variable",
     )
     options.add_argument(
-        "--from-ssm", dest="ssm_config", help="Configuration for execution is in an SSM Parameter", required=False
+        "--from-ssm",
+        dest="ssm_config",
+        help="Configuration for execution is in an SSM Parameter",
+        required=False,
     )
-    options.add_argument("--from-s3", dest="s3_config", required=False, help="Configuration for execution is in an S3")
+    options.add_argument(
+        "--from-s3",
+        dest="s3_config",
+        required=False,
+        help="Configuration for execution is in an S3",
+    )
     options.add_argument(
         "--from-secrets",
         dest="secret_config",
         required=False,
         help="Configuration for execution is in an AWS Secrets Manager",
     )
-    parser.add_argument("--role-arn", help="The Role ARN to use for the configuration initialization", required=False)
+    parser.add_argument(
+        "--role-arn",
+        help="The Role ARN to use for the configuration initialization",
+        required=False,
+    )
     parser.add_argument("_", nargs="*")
     args = parser.parse_args()
     print("Arguments: " + str(args._))
-    if not (args.env_var or args.ssm_config or args.s3_config or args.file_path) and environ.get(
-        "ECS_CONFIG_CONTENT", None
-    ):
+    if not (
+        args.env_var or args.ssm_config or args.s3_config or args.file_path
+    ) and environ.get("ECS_CONFIG_CONTENT", None):
         LOG.info("Using default env variable ECS_CONFIG_CONTENT")
         config = init_config(env_var="ECS_CONFIG_CONTENT")
     elif args.env_var:
@@ -55,7 +72,9 @@ def main():
     elif args.secret_config:
         config = init_config(secret_config=args.secret_config)
     else:
-        raise parser.error("You must specify where the execution configuration comes from or set ECS_CONFIG_CONTENT.")
+        raise parser.error(
+            "You must specify where the execution configuration comes from or set ECS_CONFIG_CONTENT."
+        )
 
     start_jobs(config)
     return 0

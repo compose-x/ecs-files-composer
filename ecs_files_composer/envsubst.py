@@ -32,7 +32,9 @@ def expandvars(path, default=None, skip_escaped=True, enable_litteral=True):
         if re.match(SPECIAL_INTERPOLATION, match.group(0)):
             groups = re.findall(SPECIAL_INTERPOLATION, match.group(0))
             if groups[0][-2] == IF_UNDEFINED:
-                return os.environ.get(groups[0][-3]) or expandvars(groups[0][-1], default, skip_escaped)
+                return os.environ.get(groups[0][-3]) or expandvars(
+                    groups[0][-1], default, skip_escaped
+                )
             elif groups[0][-2] == IF_DEFINED:
                 return expandvars(groups[0][-1])
         return os.environ.get(

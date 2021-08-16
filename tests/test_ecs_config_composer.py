@@ -24,7 +24,10 @@ def simple_json_config():
             "/tmp/test_raw.txt": {"content": raw_content},
             "/tmp/test.txt": {"content": "THIS IS A TEST"},
             "/tmp/test2.txt": {"content": "THIS IS A TEST2"},
-            "/tmp/dedoded.txt": {"content": "VEhJUyBJUyBFTkRPREVEIE1FU1NBR0U=", "encoding": "base64"},
+            "/tmp/dedoded.txt": {
+                "content": "VEhJUyBJUyBFTkRPREVEIE1FU1NBR0U=",
+                "encoding": "base64",
+            },
         }
     }
 
@@ -36,7 +39,9 @@ def s3_files_config():
     return {
         "files": {
             "/tmp/test_raw.txt": {"content": raw_content},
-            "/tmp/aws.yaml": {"source": {"S3": {"BucketName": "sacrificial-lamb", "Key": "aws.yml"}}},
+            "/tmp/aws.yaml": {
+                "source": {"S3": {"BucketName": "sacrificial-lamb", "Key": "aws.yml"}}
+            },
         }
     }
 
@@ -49,7 +54,10 @@ def simple_json_config_with_certs():
         "files": {
             "/tmp/test_raw.txt": {"content": raw_content},
             "/tmp/test.txt": {"content": "THIS IS A TEST"},
-            "/tmp/dedoded.txt": {"content": "VEhJUyBJUyBFTkRPREVEIE1FU1NBR0U=", "encoding": "base64"},
+            "/tmp/dedoded.txt": {
+                "content": "VEhJUyBJUyBFTkRPREVEIE1FU1NBR0U=",
+                "encoding": "base64",
+            },
         },
         "certificates": {
             "x509": {
