@@ -5,6 +5,7 @@
 """Main module."""
 
 import base64
+import pathlib
 import subprocess
 import warnings
 from os import path
@@ -30,14 +31,25 @@ class File(FileDef, object):
     def __init__(self, **data: Any):
         super().__init__(**data)
         self.templates_dir = None
+        self.dir_path = None
 
-    def handler(self, iam_override, session_override=None):
+    def set_dir_path(self):
+        if self.path:
+            self.dir_path = path.abspath(path.dirname(self.path))
+
+    def handler(self, iam_override=None, session_override=None):
         """
         Main entrypoint for files to relate
 
         :param ecs_files_composer.input.IamOverrideDef iam_override:
         :param boto3.session.Session session_override:
         """
+        if not self.dir_path:
+            self.set_dir_path()
+        if self.dir_path and not path.exists(self.dir_path):
+            print(f"Creating {self.dir_path} folder")
+            dir_path = pathlib.Path(path.abspath(self.dir_path))
+            dir_path.mkdir(parents=True, exist_ok=True)
         if (
             self.context
             and isinstance(self.context, Context)

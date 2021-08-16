@@ -79,11 +79,12 @@ def init_config(
     return config
 
 
-def start_jobs(config):
+def start_jobs(config, override_session=None):
     """
     Starting point to run the files job
 
     :param config:
+    :param override_session:
     :return:
     """
     if not keyisset("files", config):
@@ -96,5 +97,5 @@ def start_jobs(config):
             job.files[file_path] = file_def
             file_def.path = file_path
     for file in job.files.values():
-        file.handler(job.iam_override)
+        file.handler(job.iam_override, override_session)
         LOG.info(f"Tasks for {file.path} completed.")

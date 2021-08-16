@@ -98,16 +98,6 @@ phases:
               --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-amd64     \
               --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-arm64v8;
             docker manifest push ${PUBLIC_REGISTRY}/ecs-files-composer:latest;
-
-            docker manifest create ${AWS_MARKET_REGISTRY}/ecs-files-composer:latest   \
-              --amend ${AWS_MARKET_REGISTRY}/files-composer:${VERSION}-amd64          \
-              --amend ${AWS_MARKET_REGISTRY}/files-composer:${VERSION}-arm64v8;
-            docker manifest push ${AWS_MARKET_REGISTRY}/files-composer:latest;
-
-            docker manifest create ${AWS_MARKET_REGISTRY}/ecs-files-composer:latest  \
-              --amend ${AWS_MARKET_REGISTRY}/ecs-files-composer:${VERSION}-amd64     \
-              --amend ${AWS_MARKET_REGISTRY}/ecs-files-composer:${VERSION}-arm64v8;
-            docker manifest push ${AWS_MARKET_REGISTRY}/ecs-files-composer:latest;
           fi
 
     finally:

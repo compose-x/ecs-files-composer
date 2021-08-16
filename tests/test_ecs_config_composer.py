@@ -4,9 +4,10 @@
 # Copyright 2020-2021 John Mille<john@compose-x.io>
 
 """Tests for `ecs_files_composer` package."""
-
+import uuid
 from os import path
 
+import boto3.session
 import pytest
 
 from ecs_files_composer import input
@@ -53,7 +54,9 @@ def simple_json_config_with_certs():
     return {
         "files": {
             "/tmp/test_raw.txt": {"content": raw_content},
-            "/tmp/test.txt": {"content": "THIS IS A TEST"},
+            f"/tmp/{str(uuid.uuid1())}/test.txt": {
+                "content": "THIS IS A ${SHELL:-test}\n"
+            },
             "/tmp/dedoded.txt": {
                 "content": "VEhJUyBJUyBFTkRPREVEIE1FU1NBR0U=",
                 "encoding": "base64",
@@ -77,6 +80,8 @@ def test_simple_job_import(simple_json_config):
 
 def test_s3_files_simple(s3_files_config):
     start_jobs(s3_files_config)
+    test_session = boto3.session.Session()
+    start_jobs(s3_files_config, override_session=test_session)
 
 
 def test_simple_cert(simple_json_config_with_certs):

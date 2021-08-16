@@ -67,6 +67,20 @@ force_grid_wrap = 0
 use_parentheses = true
 known_first_party = "kelvin"
 
+[tool.coverage.run]
+source = ["ecs_files_composer"]
+branch = true
+
+[tool.coverage.report]
+ignore_errors = true
+exclude_lines = [
+    "if self.debug:",
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:"
+    ]
+
+omit = ["ecs_files_composer/cli.py"]
 
 [tool.tbump]
 github_url = "https://github.com/compose-x/ecs-files-composer"
