@@ -27,16 +27,16 @@ class File(FileDef, object):
     Class to wrap common files actions around
     """
 
-    def __init__(self, iam_override=None, **data: Any):
+    def __init__(self, **data: Any):
         super().__init__(**data)
         self.templates_dir = None
 
-    def handler(self, iam_override):
+    def handler(self, iam_override, session_override=None):
         """
         Main entrypoint for files to relate
 
         :param ecs_files_composer.input.IamOverrideDef iam_override:
-        :return:
+        :param boto3.session.Session session_override:
         """
         if (
             self.context
@@ -47,7 +47,9 @@ class File(FileDef, object):
         if self.commands and self.commands.pre:
             warnings.warn("Commands are not yet implemented", Warning)
         if self.source and not self.content:
-            self.handle_sources(iam_override=iam_override)
+            self.handle_sources(
+                iam_override=iam_override, session_override=session_override
+            )
             self.write_content()
         if not self.source and self.content:
             self.write_content(decode=True)
@@ -57,51 +59,51 @@ class File(FileDef, object):
         if self.commands and self.commands.post:
             warnings.warn("Commands are not yet implemented", Warning)
 
-    def handle_sources(self, iam_override=None):
+    def handle_sources(self, iam_override=None, session_override=None):
         """
         Handles files from external sources
 
         :param ecs_files_composer.input.IamOverrideDef iam_override:
-        :return:
+        :param boto3.session.Session session_override:
         """
         if self.source.url:
-            self.handle_http_content()
+            self.handle_url_source()
         elif self.source.ssm:
-            self.handle_ssm_source(iam_override)
+            self.handle_ssm_source(iam_override, session_override)
         elif self.source.s3:
-            self.handle_s3_source(iam_override)
+            self.handle_s3_source(iam_override, session_override)
         elif self.source.secret:
             LOG.warn(
                 "When using ECS, we recommend to use the Secrets in Task Definition"
             )
-            self.handle_secret_source(iam_override)
+            self.handle_secret_source(iam_override, session_override)
 
-    def handle_url_source(self):
-        """
-        Handles retrieving files from URLs
-        :return:
-        """
-
-    def handle_ssm_source(self, iam_override=None):
+    def handle_ssm_source(self, iam_override=None, session_override=None):
         """
         Handles retrieving the content from SSM Parameter
 
         :param ecs_files_composer.input.IamOverrideDef iam_override:
+        :param boto3.session.Session session_override:
         :return:
         """
         parameter_name = expandvars(self.source.ssm.parameter_name)
         LOG.debug(f"Retrieving ssm://{parameter_name}")
         if self.source.ssm.iam_override:
             fetcher = SsmFetcher(iam_config_object=self.source.ssm.iam_override)
-        else:
+        elif iam_override:
             fetcher = SsmFetcher(iam_config_object=iam_override)
+        elif session_override:
+            fetcher = SsmFetcher(client_session_override=session_override)
+        else:
+            fetcher = SsmFetcher()
         self.content = fetcher.get_content(parameter_name=parameter_name)
 
-    def handle_s3_source(self, iam_override=None):
+    def handle_s3_source(self, iam_override=None, session_override=None):
         """
         Handles retrieving the content from S3
 
         :param ecs_files_composer.input.IamOverrideDef iam_override:
+        :param boto3.session.Session session_override:
         :return:
         """
         bucket_name = expandvars(self.source.s3.bucket_name)
@@ -109,24 +111,33 @@ class File(FileDef, object):
         LOG.debug(f"Retrieving s3://{bucket_name}/{key}")
         if self.source.s3.iam_override:
             fetcher = S3Fetcher(iam_config_object=self.source.s3.iam_override)
-        else:
+        elif iam_override:
             fetcher = S3Fetcher(iam_config_object=iam_override)
+        elif session_override:
+            fetcher = S3Fetcher(client_session_override=session_override)
+        else:
+            fetcher = S3Fetcher()
         self.content = fetcher.get_content(s3_bucket=bucket_name, s3_key=key)
 
-    def handle_secret_source(self, iam_override=None):
+    def handle_secret_source(self, iam_override=None, session_override=None):
         """
         Handles retrieving secrets from AWS Secrets Manager
 
         :param ecs_files_composer.input.IamOverrideDef iam_override:
+        :param boto3.session.Session session_override:
         :return:
         """
         if self.source.secret.iam_override:
             fetcher = SecretFetcher(iam_config_object=self.source.secret.iam_override)
-        else:
+        elif iam_override:
             fetcher = SecretFetcher(iam_config_object=iam_override)
+        elif session_override:
+            fetcher = SecretFetcher(client_session_override=session_override)
+        else:
+            fetcher = SecretFetcher()
         self.content = fetcher.get_content(self.source.secret)
 
-    def handle_http_content(self):
+    def handle_url_source(self):
         """
         Fetches the content from a provided URI
 
