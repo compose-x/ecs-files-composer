@@ -4,6 +4,7 @@ env:
   shell: /bin/bash
   variables:
     USE_EPOCH: 0
+    PY_VERSION: 3.8
 
 phases:
   install:
@@ -24,8 +25,17 @@ phases:
             if [ "${PRE}" == "tag" ]; then VERSION=`echo $CODEBUILD_WEBHOOK_TRIGGER|cut -d '/' -f 2`; TAG_RELEASE=1 ; fi
           fi
       - echo VERSION ends up being $VERSION
-      - pip install -r requirements_dev.txt
-      - pip install -r requirements.txt
+      - (pip --version && pip install pip -U)|| curl -s https://bootstrap.pypa.io/get-pip.py | python
+      - python -m pip install poetry
+      - POETRY_BIN_FILE=`find /root/.pyenv -name poetry -type f 2>/dev/null`
+      - echo $POETRY_BIN_FILE
+      - POETRY_BIN_DIR=$(dirname "${POETRY_BIN_FILE}")
+      - PATH=$POETRY_BIN_DIR:$PATH
+      - poetry env use system
+      - poetry install
+      - POETRY_ENV=`poetry env info --path`
+      - echo $POETRY_ENV
+      - PATH=$POETRY_ENV/bin:$PATH
 
   build:
     commands:
