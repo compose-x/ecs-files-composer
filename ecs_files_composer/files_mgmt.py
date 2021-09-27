@@ -173,6 +173,7 @@ class File(FileDef, object):
         Allows to use the temp directory as environment base, the original file as source template, and render
         a final template.
         """
+        LOG.info(f"Rendering Jinja for {self.path} - {self.templates_dir.name}")
         jinja_env = Environment(
             loader=FileSystemLoader(self.templates_dir.name),
             autoescape=True,
@@ -237,8 +238,9 @@ class File(FileDef, object):
         LOG.info(f"Outputting {self.path} to {file_path}")
         if isinstance(self.content, str):
             if decode and self.encoding == Encoding["base64"]:
-                with open(file_path, "wb") as file_fd:
-                    file_fd.write(base64.b64decode(self.content))
+                LOG.debug(f"Outputting B64 to {file_path}")
+                with open(file_path, "w") as file_fd:
+                    file_fd.write(base64.b64decode(self.content).decode())
             else:
                 with open(file_path, "w") as file_fd:
                     file_fd.write(self.content)

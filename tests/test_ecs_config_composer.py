@@ -4,7 +4,9 @@
 # Copyright 2020-2021 John Mille<john@compose-x.io>
 
 """Tests for `ecs_files_composer` package."""
+import json
 import uuid
+from base64 import b64encode
 from os import path
 
 import boto3.session
@@ -74,6 +76,24 @@ def simple_json_config_with_certs():
     }
 
 
+@pytest.fixture()
+def base64_template():
+    return {
+        "files": {
+            "/tmp/b64_jinja.conf": {
+                "content": b64encode(
+                    "#/bin/bash \n"
+                    "# This is a test\n"
+                    "{{ test | env_override('SHELL') }}\n"
+                    "\n".encode("ascii")
+                ),
+                "encoding": "base64",
+                "context": "jinja2",
+            }
+        }
+    }
+
+
 def test_simple_job_import(simple_json_config):
     start_jobs(simple_json_config)
 
@@ -86,3 +106,7 @@ def test_s3_files_simple(s3_files_config):
 
 def test_simple_cert(simple_json_config_with_certs):
     start_jobs(simple_json_config_with_certs)
+
+
+def test_base64_and_jinja(base64_template):
+    start_jobs(base64_template)
