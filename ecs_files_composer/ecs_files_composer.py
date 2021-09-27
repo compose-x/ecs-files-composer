@@ -28,6 +28,7 @@ def init_config(
     secret_config=None,
     role_arn=None,
     external_id=None,
+    decode_base64=False,
 ):
     """
     Function to initialize the configuration
@@ -40,6 +41,7 @@ def init_config(
     :param str secret_config:
     :param str role_arn:
     :param str external_id:
+    :param bool decode_base64:
     :return: The ECS Config description
     :rtype: dict
     """
@@ -89,6 +91,9 @@ def init_config(
         "files": {config_path: initial_config},
         "IamOverride": iam_override,
     }
+    if decode_base64:
+        initial_config["encoding"] = "base64"
+    initial_config["context"] = "jinja2"
     start_jobs(jobs_input_def)
     with open(config_path, "r") as config_fd:
         try:

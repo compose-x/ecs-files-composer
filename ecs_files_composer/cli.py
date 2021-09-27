@@ -53,6 +53,13 @@ def main():
         help="The Role ARN to use for the configuration initialization",
         required=False,
     )
+    parser.add_argument(
+        "--decode-base64",
+        help="Whether the source config is in base64 encoded",
+        action="store_true",
+        required=False,
+        default=False,
+    )
     parser.add_argument("_", nargs="*")
     args = parser.parse_args()
     print("Arguments: " + str(args._))
@@ -60,17 +67,23 @@ def main():
         args.env_var or args.ssm_config or args.s3_config or args.file_path
     ) and environ.get("ECS_CONFIG_CONTENT", None):
         LOG.info("Using default env variable ECS_CONFIG_CONTENT")
-        config = init_config(env_var="ECS_CONFIG_CONTENT")
+        config = init_config(
+            env_var="ECS_CONFIG_CONTENT", decode_base64=args.decode_base64
+        )
     elif args.env_var:
-        config = init_config(env_var=args.env_var)
+        config = init_config(env_var=args.env_var, decode_base64=args.decode_base64)
     elif args.file_path:
-        config = init_config(file_path=args.file_path)
+        config = init_config(file_path=args.file_path, decode_base64=args.decode_base64)
     elif args.ssm_config:
-        config = init_config(ssm_parameter=args.ssm_config)
+        config = init_config(
+            ssm_parameter=args.ssm_config, decode_base64=args.decode_base64
+        )
     elif args.s3_config:
-        config = init_config(s3_config=args.s3_config)
+        config = init_config(s3_config=args.s3_config, decode_base64=args.decode_base64)
     elif args.secret_config:
-        config = init_config(secret_config=args.secret_config)
+        config = init_config(
+            secret_config=args.secret_config, decode_base64=args.decode_base64
+        )
     else:
         raise parser.error(
             "You must specify where the execution configuration comes from or set ECS_CONFIG_CONTENT."

@@ -51,6 +51,7 @@ def set_session_from_iam_object(iam_config_object, source_session=None):
         }
         if iam_config_object.external_id:
             params["ExternalId"] = iam_config_object.external_id
+        print("PA", params)
         tmp_creds = source_session.client("sts").assume_role(**params)
         client_session = create_session_from_creds(
             tmp_creds, region=iam_config_object.region_name
@@ -101,7 +102,12 @@ class AwsResourceHandler(object):
                 self.client_session = create_session_from_creds(
                     tmp_creds, region=region
                 )
-            elif iam_config_object:
+            elif (
+                iam_config_object
+                and hasattr(iam_config_object, "role_arn")
+                and iam_config_object.role_arn
+            ):
+                print(iam_config_object)
                 self.client_session = set_session_from_iam_object(
                     iam_config_object, self.session
                 )

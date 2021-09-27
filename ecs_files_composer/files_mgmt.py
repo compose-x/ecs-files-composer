@@ -5,6 +5,7 @@
 """Main module."""
 
 import base64
+import os
 import pathlib
 import subprocess
 import warnings
@@ -20,7 +21,7 @@ from ecs_files_composer.aws_mgmt import S3Fetcher, SecretFetcher, SsmFetcher
 from ecs_files_composer.common import LOG
 from ecs_files_composer.envsubst import expandvars
 from ecs_files_composer.input import Context, Encoding, FileDef
-from ecs_files_composer.jinja2_filters import env
+from ecs_files_composer.jinja2_filters import env as env_override
 
 
 class File(FileDef, object):
@@ -62,11 +63,13 @@ class File(FileDef, object):
             self.handle_sources(
                 iam_override=iam_override, session_override=session_override
             )
-            self.write_content()
-        if not self.source and self.content:
-            self.write_content(decode=True)
+        if self.content and self.encoding and self.encoding == Encoding["base64"]:
+            self.content = base64.b64decode(self.content).decode()
         if self.templates_dir:
+            self.write_content(is_template=True)
             self.render_jinja()
+        else:
+            self.write_content(is_template=False)
         self.set_unix_settings()
         if self.commands and self.commands.post:
             warnings.warn("Commands are not yet implemented", Warning)
@@ -174,14 +177,15 @@ class File(FileDef, object):
         a final template.
         """
         LOG.info(f"Rendering Jinja for {self.path} - {self.templates_dir.name}")
+        print(self.content)
         jinja_env = Environment(
             loader=FileSystemLoader(self.templates_dir.name),
             autoescape=True,
             auto_reload=False,
         )
-        jinja_env.filters["env_override"] = env
+        jinja_env.filters["env_override"] = env_override
         template = jinja_env.get_template(path.basename(self.path))
-        self.content = template.render()
+        self.content = template.render(env=os.environ)
         self.write_content(is_template=False)
 
     def set_unix_settings(self):
@@ -218,14 +222,11 @@ class File(FileDef, object):
             else:
                 raise
 
-    def write_content(
-        self, is_template=True, decode=False, as_bytes=False, bytes_content=None
-    ):
+    def write_content(self, is_template=True, as_bytes=False, bytes_content=None):
         """
         Function to write the content retrieved to path.
 
         :param bool is_template: Whether the content should be considered to be a template.
-        :param decode:
         :param as_bytes:
         :param bytes_content:
         :return:
@@ -237,13 +238,8 @@ class File(FileDef, object):
         )
         LOG.info(f"Outputting {self.path} to {file_path}")
         if isinstance(self.content, str):
-            if decode and self.encoding == Encoding["base64"]:
-                LOG.debug(f"Outputting B64 to {file_path}")
-                with open(file_path, "w") as file_fd:
-                    file_fd.write(base64.b64decode(self.content).decode())
-            else:
-                with open(file_path, "w") as file_fd:
-                    file_fd.write(self.content)
+            with open(file_path, "w") as file_fd:
+                file_fd.write(self.content)
         elif isinstance(self.content, StreamingBody):
             with open(file_path, "wb") as file_fd:
                 file_fd.write(self.content.read())
