@@ -5,6 +5,7 @@
 """Main module."""
 
 import json
+import uuid
 from os import environ, path
 
 import yaml
@@ -42,41 +43,65 @@ def init_config(
     :return: The ECS Config description
     :rtype: dict
     """
+    iam_override = {"SessionName": "FilesComposerInit"}
     if ssm_parameter or s3_config or secret_config:
         role_arn = environ.get("CONFIG_IAM_ROLE_ARN", role_arn)
         external_id = environ.get("CONFIG_IAM_EXTERNAL_ID", None)
+        if role_arn:
+            iam_override.update({"RoleArn": role_arn})
+        if external_id:
+            iam_override.update({"ExternalId": external_id})
     if ssm_parameter:
-        config_client = SsmFetcher(role_arn, external_id)
-        config_content = config_client.get_content(ssm_parameter)
+        initial_config = {"source": {"Ssm": {"ParameterName": ssm_parameter}}}
     elif s3_config:
-        config_client = S3Fetcher(role_arn, external_id)
-        config_content = config_client.get_content(s3_uri=s3_config).read()
+        if not S3Fetcher.bucket_re.match(s3_config):
+            raise ValueError(
+                "The value for S3 URI is not valid.",
+                s3_config,
+                "Expected to match",
+                S3Fetcher.bucket_re.pattern,
+            )
+        initial_config = {
+            "source": {
+                "S3": {
+                    "BucketName": S3Fetcher.bucket_re.match(s3_config).group("bucket"),
+                    "Key": S3Fetcher.bucket_re.match(s3_config).group("key"),
+                }
+            }
+        }
     elif secret_config:
-        config_client = SecretFetcher(role_arn, external_id)
-        config_content = config_client.get_content(
-            input.SecretDef(SecretId=secret_config)
-        )
+        initial_config = {"source": {"Secret": {"SecretId": secret_config}}}
     elif file_path:
         with open(path.abspath(file_path), "r") as file_fd:
             config_content = file_fd.read()
+        initial_config = {"content": config_content}
     elif raw:
-        config_content = raw
+        initial_config = {"content": raw}
     elif env_var:
-        config_content = environ.get(env_var, None)
+        initial_config = {"content": environ.get(env_var, None)}
     else:
         raise Exception("No input source was provided")
-    if not config_content:
+    if not initial_config:
         raise ImportError("Failed to import a configuration content")
-    LOG.debug(config_content)
-    try:
-        config = yaml.load(config_content, Loader=Loader)
-    except yaml.YAMLError:
-        config = json.loads(config_content)
-    except Exception:
-        LOG.error("Input content is neither JSON nor YAML formatted")
-        raise
-    LOG.debug(config)
-    return config
+    LOG.debug(initial_config)
+    config_path = f"/tmp/{str(uuid.uuid1())}/init_config.conf"
+    jobs_input_def = {
+        "files": {config_path: initial_config},
+        "IamOverride": iam_override,
+    }
+    start_jobs(jobs_input_def)
+    with open(config_path, "r") as config_fd:
+        try:
+            config = yaml.load(config_fd.read(), Loader=Loader)
+            LOG.info(f"Successfully loaded YAML config {config_path}")
+            return config
+        except yaml.YAMLError:
+            config = json.loads(config_fd.read())
+            LOG.info(f"Successfully loaded JSON config {config_path}")
+            return config
+        except Exception:
+            LOG.error("Input content is neither JSON nor YAML formatted")
+            raise
 
 
 def start_jobs(config, override_session=None):

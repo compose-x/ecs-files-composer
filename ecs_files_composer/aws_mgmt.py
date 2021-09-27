@@ -112,6 +112,8 @@ class S3Fetcher(AwsResourceHandler):
     Class to handle S3 actions
     """
 
+    bucket_re = re.compile(r"(?:s3://)(?P<bucket>[a-z0-9-.]+)/(?P<key>[\S]+$)")
+
     def __init__(
         self,
         role_arn=None,
@@ -134,10 +136,10 @@ class S3Fetcher(AwsResourceHandler):
         :param str s3_key:
         :return: The Stream Body for the file, allowing to do various things
         """
-        bucket_re = re.compile(r"(?:s3://)(?P<bucket>[a-z0-9-.]+)/(?P<key>[\S]+$)")
-        if s3_uri and bucket_re.match(s3_uri).groups():
-            s3_bucket = bucket_re.match(s3_uri).group("bucket")
-            s3_key = bucket_re.match(s3_uri).group("key")
+
+        if s3_uri and self.bucket_re.match(s3_uri).groups():
+            s3_bucket = self.bucket_re.match(s3_uri).group("bucket")
+            s3_key = self.bucket_re.match(s3_uri).group("key")
         try:
             file_r = self.client.get_object(Bucket=s3_bucket, Key=s3_key)
             file_content = file_r["Body"]
