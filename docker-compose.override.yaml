@@ -23,6 +23,7 @@ services:
       AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: "/creds"
       ECS_CONTAINER_METADATA_URI: http://169.254.170.2/v3/containers/files-sidecar
       AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-eu-west-1}
+      context: plain
       ECS_CONFIG_CONTENT: |
 
         files:
@@ -42,9 +43,6 @@ services:
             source:
               Ssm:
                 ParameterName: /cicd/shared/kms/arn
-            commands:
-              post:
-                - file /opt/files/ssm.txt
 
           /opt/files/secret.txt:
             source:
@@ -58,17 +56,35 @@ services:
 
           /opt/files/test_ecs_properties.yaml:
             content: |
-              {{ ecs_container_metadata() | to_yaml }}
+              {{ ecs_container_metadata() | to_yaml | safe }}
             context: jinja2
           /opt/files/test_ecs_properties.json:
             content: |
-              {{ ecs_task_metadata() | tojson }}
+              {{ ecs_task_metadata() | to_json | safe }}
               # HELLO
               {{ ecs_container_metadata('ImageID')}}
             context: jinja2
-
+            ignore_if_failed: true
+            commands:
+              post:
+                - ls /opt/files
+                - cat /opt/files/test_ecs_properties.json
+                - chown 1000:1000 -R /opt/files
     depends_on:
       - ecs-local-endpoints
+
+  confirm:
+    image: public.ecr.aws/amazonlinux/amazonlinux:2
+    container_name: testing
+    volumes:
+      - localshared:/opt/
+    command:
+      - ls
+      - -l
+      - /opt
+    depends_on:
+      - files-sidecar
+
 
 volumes:
   localshared:

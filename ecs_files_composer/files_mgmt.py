@@ -72,7 +72,7 @@ class File(FileDef, object):
             self.write_content(is_template=False)
         self.set_unix_settings()
         if self.commands and self.commands.post:
-            warnings.warn("Commands are not yet implemented", Warning)
+            self.exec_post_commands()
 
     def handle_sources(self, iam_override=None, session_override=None):
         """
@@ -221,6 +221,28 @@ class File(FileDef, object):
                 LOG.error(res.stderr)
             else:
                 raise
+
+    def exec_post_commands(self):
+
+        commands = self.commands.post.__root__
+        for command in commands:
+            cmd = command
+            if isinstance(command, str):
+                cmd = command.split(" ")
+            LOG.info(f"{self.path} - {cmd}")
+            try:
+                res = subprocess.run(
+                    cmd,
+                    universal_newlines=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    shell=False,
+                )
+            except subprocess.CalledProcessError:
+                if self.ignore_if_failed:
+                    LOG.error(res.stderr)
+                else:
+                    raise
 
     def write_content(self, is_template=True, as_bytes=False, bytes_content=None):
         """
