@@ -60,6 +60,13 @@ def main():
         required=False,
         default=False,
     )
+    parser.add_argument(
+        "--with-jinja2",
+        help="Whether the source config should be rendered with Jinja2",
+        action="store_true",
+        required=False,
+        default=False,
+    )
     parser.add_argument("_", nargs="*")
     args = parser.parse_args()
     print("Arguments: " + str(args._))
@@ -68,21 +75,39 @@ def main():
     ) and environ.get("ECS_CONFIG_CONTENT", None):
         LOG.info("Using default env variable ECS_CONFIG_CONTENT")
         config = init_config(
-            env_var="ECS_CONFIG_CONTENT", decode_base64=args.decode_base64
+            env_var="ECS_CONFIG_CONTENT",
+            decode_base64=bool(environ.get("DECODE_BASE64", False)),
+            with_jinja=bool(environ.get("WITH_JINJA", False)),
         )
     elif args.env_var:
-        config = init_config(env_var=args.env_var, decode_base64=args.decode_base64)
+        config = init_config(
+            env_var=args.env_var,
+            decode_base64=args.decode_base64,
+            with_jinja=args.with_jinja,
+        )
     elif args.file_path:
-        config = init_config(file_path=args.file_path, decode_base64=args.decode_base64)
+        config = init_config(
+            file_path=args.file_path,
+            decode_base64=args.decode_base64,
+            with_jinja=args.with_jinja,
+        )
     elif args.ssm_config:
         config = init_config(
-            ssm_parameter=args.ssm_config, decode_base64=args.decode_base64
+            ssm_parameter=args.ssm_config,
+            decode_base64=args.decode_base64,
+            with_jinja=args.with_jinja,
         )
     elif args.s3_config:
-        config = init_config(s3_config=args.s3_config, decode_base64=args.decode_base64)
+        config = init_config(
+            s3_config=args.s3_config,
+            decode_base64=args.decode_base64,
+            with_jinja=args.with_jinja,
+        )
     elif args.secret_config:
         config = init_config(
-            secret_config=args.secret_config, decode_base64=args.decode_base64
+            secret_config=args.secret_config,
+            decode_base64=args.decode_base64,
+            with_jinja=args.with_jinja,
         )
     else:
         raise parser.error(

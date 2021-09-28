@@ -29,6 +29,7 @@ def init_config(
     role_arn=None,
     external_id=None,
     decode_base64=False,
+    with_jinja=False,
 ):
     """
     Function to initialize the configuration
@@ -93,7 +94,8 @@ def init_config(
     }
     if decode_base64:
         initial_config["encoding"] = "base64"
-    # initial_config["context"] = "jinja2"
+    if with_jinja:
+        initial_config["context"] = "jinja2"
     start_jobs(jobs_input_def)
     with open(config_path, "r") as config_fd:
         try:
