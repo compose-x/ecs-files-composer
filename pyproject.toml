@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ecs_files_composer"
-version = "0.6.4"
+version = "0.7.0"
 description = "Files and configuration handler to inject configuration files into volumes for ECS containers"
 authors = ["John Preston <john@compose-x.io>"]
 license = "MPL-2.0"
@@ -87,7 +87,7 @@ omit = ["ecs_files_composer/cli.py"]
 github_url = "https://github.com/compose-x/ecs-files-composer"
 
 [tool.tbump.version]
-current = "0.6.4"
+current = "0.7.0"
 
 # Example of a semver regexp.
 # Make sure this matches current_version before
