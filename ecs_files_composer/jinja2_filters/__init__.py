@@ -136,9 +136,14 @@ def to_json(value, indent=2):
     return json.dumps(value, indent=indent)
 
 
+def env_var(key, value=None):
+    return environ.get(key, value)
+
+
 JINJA_FUNCTIONS = {
     "ecs_container_metadata": ecs_container_metadata,
     "ecs_task_metadata": ecs_task_metadata,
+    "env_var": env_var,
 }
 
 JINJA_FILTERS = {"to_yaml": to_yaml, "to_json": to_json, "env_override": env_override}
