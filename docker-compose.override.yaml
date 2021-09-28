@@ -12,13 +12,16 @@ services:
       ECS_LOCAL_METADATA_PORT: "51679"
       HOME: "/home"
       AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-eu-west-1}
-      AWS_PROFILE: ${AWS_PROFILE}
+      AWS_PROFILE: ${AWS_PROFILE:-default}
     ports:
       - 51679:51679
+    container_name: ecs-local-endpoints
 
   files-sidecar:
+    container_name: files-sidecar
     environment:
       AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: "/creds"
+      ECS_CONTAINER_METADATA_URI: http://169.254.170.2/v3/containers/files-sidecar
       AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-eu-west-1}
       ECS_CONFIG_CONTENT: |
 
@@ -47,7 +50,30 @@ services:
             source:
               Secret:
                 SecretId: GHToken
-#    command: --from-s3 s3://sacrificial-lamb/test.yaml
+
+          /opt/files/test_ecs_property.txt:
+            content: |
+              {{ ecs_container_metadata('PrivateDNSName') }}
+            context: jinja2
+
+          /opt/files/test_ecs_properties.yaml:
+            content: |
+              {{ ecs_container_metadata() | to_yaml }}
+            context: jinja2
+          /opt/files/test_ecs_properties.json:
+            content: |
+              {{ ecs_task_metadata() | tojson }}
+              # HELLO
+              {{ ecs_container_metadata('ImageID')}}
+            context: jinja2
 
     depends_on:
       - ecs-local-endpoints
+
+volumes:
+  localshared:
+    driver: local
+    driver_opts:
+      device: /tmp/files
+      o: bind
+      type: none

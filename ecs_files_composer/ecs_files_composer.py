@@ -93,7 +93,7 @@ def init_config(
     }
     if decode_base64:
         initial_config["encoding"] = "base64"
-    initial_config["context"] = "jinja2"
+    # initial_config["context"] = "jinja2"
     start_jobs(jobs_input_def)
     with open(config_path, "r") as config_fd:
         try:

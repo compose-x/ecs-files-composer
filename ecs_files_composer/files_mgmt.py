@@ -21,7 +21,7 @@ from ecs_files_composer.aws_mgmt import S3Fetcher, SecretFetcher, SsmFetcher
 from ecs_files_composer.common import LOG
 from ecs_files_composer.envsubst import expandvars
 from ecs_files_composer.input import Context, Encoding, FileDef
-from ecs_files_composer.jinja2_filters import env as env_override
+from ecs_files_composer.jinja2_filters import JINJA_FILTERS, JINJA_FUNCTIONS
 
 
 class File(FileDef, object):
@@ -177,13 +177,13 @@ class File(FileDef, object):
         a final template.
         """
         LOG.info(f"Rendering Jinja for {self.path} - {self.templates_dir.name}")
-        print(self.content)
         jinja_env = Environment(
             loader=FileSystemLoader(self.templates_dir.name),
             autoescape=True,
             auto_reload=False,
         )
-        jinja_env.filters["env_override"] = env_override
+        jinja_env.filters.update(JINJA_FILTERS)
+        jinja_env.globals.update(JINJA_FUNCTIONS)
         template = jinja_env.get_template(path.basename(self.path))
         self.content = template.render(env=os.environ)
         self.write_content(is_template=False)
