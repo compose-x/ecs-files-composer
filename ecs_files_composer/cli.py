@@ -61,11 +61,10 @@ def main():
         default=False,
     )
     parser.add_argument(
-        "--with-jinja",
-        help="Whether the source config should be rendered with Jinja2",
-        action="store_true",
+        "--context",
+        help="Indicate which context to use (valid: jinja2|plain). Default is jinja2",
         required=False,
-        default=False,
+        default="jinja2",
     )
     parser.add_argument("_", nargs="*")
     args = parser.parse_args()
@@ -77,37 +76,37 @@ def main():
         config = init_config(
             env_var="ECS_CONFIG_CONTENT",
             decode_base64=bool(environ.get("DECODE_BASE64", False)),
-            with_jinja=bool(environ.get("WITH_JINJA", False)),
+            context=environ.get("context", "jinja2"),
         )
     elif args.env_var:
         config = init_config(
             env_var=args.env_var,
             decode_base64=args.decode_base64,
-            with_jinja=args.with_jinja,
+            context=args.context,
         )
     elif args.file_path:
         config = init_config(
             file_path=args.file_path,
             decode_base64=args.decode_base64,
-            with_jinja=args.with_jinja,
+            context=args.context,
         )
     elif args.ssm_config:
         config = init_config(
             ssm_parameter=args.ssm_config,
             decode_base64=args.decode_base64,
-            with_jinja=args.with_jinja,
+            context=args.context,
         )
     elif args.s3_config:
         config = init_config(
             s3_config=args.s3_config,
             decode_base64=args.decode_base64,
-            with_jinja=args.with_jinja,
+            context=args.context,
         )
     elif args.secret_config:
         config = init_config(
             secret_config=args.secret_config,
             decode_base64=args.decode_base64,
-            with_jinja=args.with_jinja,
+            context=args.context,
         )
     else:
         raise parser.error(
