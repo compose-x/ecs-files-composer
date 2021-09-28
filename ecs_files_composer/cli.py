@@ -61,7 +61,7 @@ def main():
         default=False,
     )
     parser.add_argument(
-        "--with-jinja2",
+        "--with-jinja",
         help="Whether the source config should be rendered with Jinja2",
         action="store_true",
         required=False,
