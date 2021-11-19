@@ -28,7 +28,7 @@ requests = "^2.26.0"
 PyYAML = "^6.0"
 Jinja2 = "^3.0.3"
 jsonschema = "^4.2.1"
-compose-x-common = {version = "^0.2"}
+compose-x-common = "^0.2.2"
 
 [tool.poetry.dev-dependencies]
 placebo = "^0.10.0"
