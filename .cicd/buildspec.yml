@@ -1,4 +1,4 @@
-﻿
+
 version: 0.2
 env:
   shell: /bin/bash
@@ -11,33 +11,33 @@ batch:
   fast-fail: false
   build-graph:
 
-    - identifier: amd64_py38
+    - identifier: amd64
       env:
-        compute-type: BUILD_GENERAL1_LARGE
+        compute-type: BUILD_GENERAL1_SMALL
         privileged-mode: true
         variables:
-          VERSION: 3.8
+          VERSION: 3.9
           ARCH: amd64
       buildspec: .cicd/build_images.yml
 
-    - identifier: arm64v8_py38
+    - identifier: arm64v8
       env:
         type: ARM_CONTAINER
         image: aws/codebuild/amazonlinux2-aarch64-standard:2.0
-        compute-type: BUILD_GENERAL1_LARGE
+        compute-type: BUILD_GENERAL1_SMALL
         privileged-mode: true
         variables:
           ARCH: arm64v8
-          VERSION: 3.8
+          VERSION: 3.9
       buildspec: .cicd/build_images.yml
 
     - identifier: manifest
       env:
-        compute-type: BUILD_GENERAL1_LARGE
+        compute-type: BUILD_GENERAL1_SMALL
         privileged-mode: true
       depend-on:
-        - amd64_py38
-        - arm64v8_py38
+        - amd64
+        - arm64v8
 
 phases:
   install:
