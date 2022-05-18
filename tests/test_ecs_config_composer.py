@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#  -*- coding: utf-8 -*-
 # SPDX-License-Identifier: MPL-2.0
 # Copyright 2020-2021 John Mille<john@compose-x.io>
 
@@ -20,7 +19,7 @@ HERE = path.abspath(path.dirname(__file__))
 
 @pytest.fixture
 def simple_json_config():
-    with open(f"{HERE}/RAW_CONTENT.txt", "r") as raw_fd:
+    with open(f"{HERE}/RAW_CONTENT.txt") as raw_fd:
         raw_content = raw_fd.read()
     return {
         "files": {
@@ -37,7 +36,7 @@ def simple_json_config():
 
 @pytest.fixture
 def s3_files_config():
-    with open(f"{HERE}/RAW_CONTENT.txt", "r") as raw_fd:
+    with open(f"{HERE}/RAW_CONTENT.txt") as raw_fd:
         raw_content = raw_fd.read()
     return {
         "files": {
@@ -51,7 +50,7 @@ def s3_files_config():
 
 @pytest.fixture
 def simple_json_config_with_certs():
-    with open(f"{HERE}/RAW_CONTENT.txt", "r") as raw_fd:
+    with open(f"{HERE}/RAW_CONTENT.txt") as raw_fd:
         raw_content = raw_fd.read()
     return {
         "files": {
@@ -82,10 +81,10 @@ def base64_template():
         "files": {
             "/tmp/b64_jinja.conf": {
                 "content": b64encode(
-                    "#/bin/bash \n"
-                    "# This is a test\n"
-                    "{{ test | env_override('SHELL') }}\n"
-                    "\n".encode("ascii")
+                    b"#/bin/bash \n"
+                    b"# This is a test\n"
+                    b"{{ test | env_override('SHELL') }}\n"
+                    b"\n"
                 ),
                 "encoding": "base64",
                 "context": "jinja2",

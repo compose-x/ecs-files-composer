@@ -20,6 +20,7 @@ repos:
     hooks:
       - id: pyupgrade
         args: [ "--py38-plus" ]
+        exclude: ^ecs_files_composer/input.py|docs/
 
   - repo: https://github.com/psf/black
     rev: 22.3.0

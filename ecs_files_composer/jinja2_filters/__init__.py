@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # SPDX-License-Identifier: MPL-2.0
 # Copyright 2020-2021 John Mille<john@compose-x.io>
 
@@ -32,9 +31,7 @@ def define_metadata(for_task=False):
     elif environ.get(meta_v4, None):
         meta_url = environ.get(meta_v4)
     else:
-        raise EnvironmentError(
-            "No ECS Metadata URL provided. This filter only works on ECS"
-        )
+        raise OSError("No ECS Metadata URL provided. This filter only works on ECS")
     if for_task:
         return requests.get(f"{meta_url}/task")
     else:

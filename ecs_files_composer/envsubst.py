@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # SPDX-License-Identifier: MPL-2.0
 # Copyright 2020-2021 John Mille <john@compose-x.io>
 
@@ -14,7 +13,7 @@ SPECIAL_INTERPOLATION = r"(?<!\\)(\$(\{(((?!AWS::)[^}]+)(\:[+-=]{1}))([^}]+)\}))
 IF_ESCAPED = r"(?<!\\)"
 IF_UNDEFINED = r":-"
 IF_DEFINED = r":+"
-IF_LITTERAL = re.compile("(\$(\{\![^}]+\}))")
+IF_LITTERAL = re.compile(r"(\$(\{\![^}]+\}))")
 
 
 def expandvars(path, default=None, skip_escaped=True, enable_litteral=True):

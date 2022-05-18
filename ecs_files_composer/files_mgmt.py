@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # SPDX-License-Identifier: MPL-2.0
 # Copyright 2020-2021 John Mille<john@compose-x.io>
 
@@ -24,7 +23,7 @@ from ecs_files_composer.input import Context, Encoding, FileDef
 from ecs_files_composer.jinja2_filters import JINJA_FILTERS, JINJA_FUNCTIONS
 
 
-class File(FileDef, object):
+class File(FileDef):
     """
     Class to wrap common files actions around
     """
@@ -197,9 +196,8 @@ class File(FileDef, object):
         try:
             res = subprocess.run(
                 cmd,
-                universal_newlines=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                text=True,
+                capture_output=True,
                 shell=False,
             )
         except subprocess.CalledProcessError:
@@ -211,9 +209,8 @@ class File(FileDef, object):
         try:
             res = subprocess.run(
                 cmd,
-                universal_newlines=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                text=True,
+                capture_output=True,
                 shell=False,
             )
         except subprocess.CalledProcessError:
@@ -233,9 +230,8 @@ class File(FileDef, object):
             try:
                 res = subprocess.run(
                     cmd,
-                    universal_newlines=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
+                    text=True,
+                    capture_output=True,
                     shell=False,
                 )
             except subprocess.CalledProcessError:

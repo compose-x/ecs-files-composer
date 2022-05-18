@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # SPDX-License-Identifier: MPL-2.0
 # Copyright 2020-2021 John Mille<john@compose-x.io>
 
@@ -67,7 +66,7 @@ def set_session_from_iam_object(iam_config_object, source_session=None):
     return client_session
 
 
-class AwsResourceHandler(object):
+class AwsResourceHandler:
     """
     Class to handle all AWS related credentials init.
     """

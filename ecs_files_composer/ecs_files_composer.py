@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # SPDX-License-Identifier: MPL-2.0
 # Copyright 2020-2021 John Mille<john@compose-x.io>
 
@@ -75,7 +74,7 @@ def init_config(
     elif secret_config:
         initial_config = {"source": {"Secret": {"SecretId": secret_config}}}
     elif file_path:
-        with open(path.abspath(file_path), "r") as file_fd:
+        with open(path.abspath(file_path)) as file_fd:
             config_content = file_fd.read()
         initial_config = {"content": config_content}
     elif raw:
@@ -97,7 +96,7 @@ def init_config(
     if context:
         initial_config["context"] = context
     start_jobs(jobs_input_def)
-    with open(config_path, "r") as config_fd:
+    with open(config_path) as config_fd:
         try:
             config = yaml.load(config_fd.read(), Loader=Loader)
             LOG.info(f"Successfully loaded YAML config {config_path}")
