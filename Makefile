@@ -1,4 +1,4 @@
-.PHONY: clean clean-test clean-pyc clean-build docs help
+.PHONY: clean clean-test clean-pyc clean-build docs help data-model
 .DEFAULT_GOAL := help
 
 define BROWSER_PYSCRIPT
@@ -94,7 +94,7 @@ dist: clean ## builds source and wheel package
 	ls -l dist
 
 install: clean ## install the package to the active Python's site-packages
-	pip install . --use-pep517 --use-feature=in-tree-build
+	pip install . --use-pep517
 
 conform	: ## Conform to a standard of coding syntax
 	isort --profile black ecs_files_composer
@@ -102,7 +102,4 @@ conform	: ## Conform to a standard of coding syntax
 	find ecs_files_composer -name "*.json" -type f  -exec sed -i '1s/^\xEF\xBB\xBF//' {} +
 
 data-model:
-	datamodel-codegen  --input ecs-files-input.json \
-		--input-file-type jsonschema \
-		--output ecs_files_composer/input.py
-# 		--enum-field-as-literal all
+			datamodel-codegen

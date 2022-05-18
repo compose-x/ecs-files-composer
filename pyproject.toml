@@ -5,53 +5,55 @@ description = "Files and configuration handler to inject configuration files int
 authors = ["John Preston <john@compose-x.io>"]
 license = "MPL-2.0"
 classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
-        "Intended Audience :: Developers",
-        "Natural Language :: English",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Intended Audience :: System Administrators",
-        "Intended Audience :: Information Technology",
-        "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)"
-    ]
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)"
+]
 readme = "README.rst"
 keywords=["aws", "ecs", "k8s", "secrets", "docker"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
-boto3 = "^1.20.24"
-pydantic = {extras = ["email"], version = "^1.8.2"}
+python = "^3.8"
+boto3 = "^1.23.2"
+pydantic = {extras = ["email"], version = "^1.9.0"}
 pyOpenSSL = "^20.0.1"
-requests = "^2.26.0"
+requests = "^2.27.1"
 PyYAML = "^6.0"
-Jinja2 = "^3.0.3"
-jsonschema = "^4.2.1"
-compose-x-common = "^0.3.5"
+Jinja2 = "^3.1.2"
+jsonschema = "^4.5.1"
+compose-x-common = "^0.4.5"
 
 [tool.poetry.dev-dependencies]
 placebo = "^0.10.0"
-datamodel-code-generator = {extras = ["http"], version = "^0.11.9"}
-Sphinx = "^4.3.1"
-black = "^21.12b0"
+datamodel-code-generator = {extras = ["http"], version = "^0.12"}
+Sphinx = "^4.5.0"
+black = "^22.3.0"
 isort = "^5.10.1"
 sphinx-material = "^0.0.34"
 coverage = "^5.5"
 behave = "^1.2.6"
 pytest = "^6.2.5"
 flake8 = "^3.9.2"
-watchdog = "^2.1.6"
-pre-commit = "^2.16.0"
-tbump = "^6.6.0"
-sphinx-jsonschema = "^1.17.1"
+watchdog = "^2.1.8"
+pre-commit = "^2.19.0"
+tbump = "^6.9.0"
+sphinx-jsonschema = "^1.19.1"
 
 [tool.poetry.scripts]
 files_composer = "ecs_files_composer.cli:main"
 ecs_files_composer = "ecs_files_composer.cli:main"
 
-
 [tool.datamodel-codegen]
+input = "ecs-files-input.json"
+input-file-type = "jsonschema"
+output = "ecs_files_composer/input.py"
 field-constraints = true
 snake-case-field = true
 strip-default-none = false

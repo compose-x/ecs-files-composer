@@ -21,7 +21,6 @@
       "additionalProperties": false,
       "properties": {
         "x509": {
-          "uniqueItems": true,
           "patternProperties": {
             "^/[\\x00-\\x7F]+$": {
               "$ref": "#/definitions/X509CertDef"

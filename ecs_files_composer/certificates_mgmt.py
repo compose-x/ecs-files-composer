@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # SPDX-License-Identifier: MPL-2.0
 # Copyright 2020-2021 John Mille<john@compose-x.io>
 
@@ -13,7 +12,7 @@ from ecs_files_composer.files_mgmt import File
 from ecs_files_composer.input import X509CertDef
 
 
-class X509Certificate(X509CertDef, object):
+class X509Certificate(X509CertDef):
     """
     Class to wrap actions around a new X509 certificate
     """
@@ -107,8 +106,8 @@ def process_x509_certs(job):
         return
     for cert_path, cert_def in job.certificates.x509.items():
         cert_obj = X509Certificate(
-            keyFileName=cert_def["keyFileName"], certFileName=cert_def["certFileName"]
-        ).parse_obj(cert_def)
+            **(cert_def.dict(by_alias=True)),
+        )
         cert_obj.dir_path = cert_path
         cert_obj.init_cert_paths()
         cert_obj.set_cert_files()
