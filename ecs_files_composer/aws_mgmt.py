@@ -6,7 +6,7 @@
 import re
 
 import boto3
-from boto3 import session
+from boto3.session import Session
 from botocore.exceptions import ClientError
 
 from ecs_files_composer import input
@@ -14,7 +14,7 @@ from ecs_files_composer.common import LOG
 from ecs_files_composer.envsubst import expandvars
 
 
-def create_session_from_creds(tmp_creds, region=None):
+def create_session_from_creds(tmp_creds: dict, region: str = None):
     """
     Function to easily convert the AssumeRole reply into a boto3 session
     :param tmp_creds:
@@ -32,7 +32,7 @@ def create_session_from_creds(tmp_creds, region=None):
     return boto3.session.Session(**params)
 
 
-def set_session_from_iam_object(iam_config_object, source_session=None):
+def set_session_from_iam_object(iam_config_object, source_session: Session = None):
     """
     Function to define the client session based on config input
 
@@ -42,7 +42,7 @@ def set_session_from_iam_object(iam_config_object, source_session=None):
     :rtype: boto3.session.Session
     """
     if source_session is None:
-        source_session = boto3.session.Session()
+        source_session = boto3.Session()
     if not iam_config_object.access_key_id and not iam_config_object.secret_access_key:
         params = {
             "RoleArn": iam_config_object.role_arn,
@@ -50,7 +50,6 @@ def set_session_from_iam_object(iam_config_object, source_session=None):
         }
         if iam_config_object.external_id:
             params["ExternalId"] = iam_config_object.external_id
-        print("PA", params)
         tmp_creds = source_session.client("sts").assume_role(**params)
         client_session = create_session_from_creds(
             tmp_creds, region=iam_config_object.region_name
@@ -85,8 +84,8 @@ class AwsResourceHandler:
         :param str region:
         :param ecs_files_composer.input.IamOverrideDef iam_config_object:
         """
-        self.session = session.Session()
-        self.client_session = session.Session()
+        self.session = Session()
+        self.client_session = Session()
         if client_session_override:
             self.client_session = client_session_override
         elif not client_session_override and (role_arn or iam_config_object):
@@ -106,7 +105,6 @@ class AwsResourceHandler:
                 and hasattr(iam_config_object, "role_arn")
                 and iam_config_object.role_arn
             ):
-                print(iam_config_object)
                 self.client_session = set_session_from_iam_object(
                     iam_config_object, self.session
                 )
