@@ -12,12 +12,18 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .input import Model
 
+from os import makedirs, path
+
 from certbot_aws_store.certificate import AcmeCertificate
 
 from ecs_files_composer.common import LOG
 
 
 def handle_certbot_store_certificates(job: Model) -> None:
+    """
+    Pulls certificates from certbot-aws-store to local filesystem
+    If the path does not exist, creates a new directory for download.
+    """
     if not job.certbot_store:
         return
     for _hostname, _definition in job.certbot_store.items():
@@ -29,9 +35,13 @@ def handle_certbot_store_certificates(job: Model) -> None:
             if _definition.table_region_name
             else None,
         )
+        if not path.exists(_definition.storage_path):
+            makedirs(_definition.storage_path, exist_ok=True)
         try:
             certificate.pull(_definition.storage_path)
             LOG.info("Successfully pulled certificates for %s", _hostname)
         except Exception as error:
-            print(error)
-            print("Failed to download certificate from certbot-aws-store", _hostname)
+            LOG.exceptions(error)
+            LOG.error(
+                "Failed to download certificate from certbot-aws-store", _hostname
+            )

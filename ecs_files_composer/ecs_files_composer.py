@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 import json
 import uuid
 from os import environ, path
+from tempfile import TemporaryDirectory
 
 import yaml
 from compose_x_common.compose_x_common import keyisset
@@ -56,7 +57,7 @@ def init_config(
     iam_override = {"SessionName": "FilesComposerInit"}
     if ssm_parameter or s3_config or secret_config:
         role_arn = environ.get("CONFIG_IAM_ROLE_ARN", role_arn)
-        external_id = environ.get("CONFIG_IAM_EXTERNAL_ID", None)
+        external_id = environ.get("CONFIG_IAM_EXTERNAL_ID", external_id)
         if role_arn:
             iam_override.update({"RoleArn": role_arn})
         if external_id:
@@ -90,11 +91,12 @@ def init_config(
     elif env_var:
         initial_config = {"content": environ.get(env_var, None)}
     else:
-        raise Exception("No input source was provided")
+        raise ValueError("No input source was provided")
     if not initial_config:
         raise ImportError("Failed to import a configuration content")
     LOG.debug(initial_config)
-    config_path = f"/tmp/{str(uuid.uuid1())}/init_config.conf"
+    temp_dir = TemporaryDirectory()
+    config_path = f"{temp_dir.name}/init_config.conf"
     jobs_input_def = {
         "files": {config_path: initial_config},
         "IamOverride": iam_override,
