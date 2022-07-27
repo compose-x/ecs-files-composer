@@ -93,13 +93,13 @@ dist: clean ## builds source and wheel package
 	poetry build
 	ls -l dist
 
-install: clean ## install the package to the active Python's site-packages
+install: clean conform ## install the package to the active Python's site-packages
 	pip install . --use-pep517
 
-conform	: ## Conform to a standard of coding syntax
+conform:	data-model
 	isort --profile black ecs_files_composer
 	black ecs_files_composer tests
 	find ecs_files_composer -name "*.json" -type f  -exec sed -i '1s/^\xEF\xBB\xBF//' {} +
 
 data-model:
-			datamodel-codegen
+	datamodel-codegen

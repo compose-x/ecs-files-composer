@@ -1,7 +1,14 @@
 # SPDX-License-Identifier: MPL-2.0
-# Copyright 2020-2021 John Mille<john@compose-x.io>
+# Copyright 2020-2022 John Mille<john@compose-x.io>
 
 """Main module."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .input import Model
 
 import json
 import uuid
@@ -13,6 +20,7 @@ from yaml import Loader
 
 from ecs_files_composer import input
 from ecs_files_composer.aws_mgmt import S3Fetcher, SecretFetcher, SsmFetcher
+from ecs_files_composer.certbot_aws_store import handle_certbot_store_certificates
 from ecs_files_composer.certificates_mgmt import process_x509_certs
 from ecs_files_composer.common import LOG
 from ecs_files_composer.files_mgmt import File
@@ -110,7 +118,18 @@ def init_config(
             raise
 
 
-def start_jobs(config, override_session=None):
+def process_files(job: Model, override_session=None) -> None:
+    files: list = []
+    for file_path, file in job.files.items():
+        file_redef = File(**file.dict())
+        file_redef.path = file_path
+        files.append(file_redef)
+    for file in files:
+        file.handler(job.iam_override, override_session)
+        LOG.info(f"Tasks for {file.path} completed.")
+
+
+def start_jobs(config: dict, override_session=None):
     """
     Starting point to run the files job
 
@@ -118,15 +137,10 @@ def start_jobs(config, override_session=None):
     :param override_session:
     :return:
     """
-    if not keyisset("files", config):
-        raise KeyError("Missing required files from configuration input")
-    job = input.Model(files=config["files"]).parse_obj(config)
-    process_x509_certs(job)
-    for file_path, file in job.files.items():
-        if not isinstance(file, File):
-            file_def = File().parse_obj(file)
-            job.files[file_path] = file_def
-            file_def.path = file_path
-    for file in job.files.values():
-        file.handler(job.iam_override, override_session)
-        LOG.info(f"Tasks for {file.path} completed.")
+    job = input.Model(**config)
+    if job.certificates:
+        process_x509_certs(job)
+    if job.certbot_store:
+        handle_certbot_store_certificates(job)
+    if job.files:
+        process_files(job, override_session)

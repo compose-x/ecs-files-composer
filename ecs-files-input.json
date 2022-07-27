@@ -3,9 +3,6 @@
   "type": "object",
   "typeName": "input",
   "description": "Configuration input definition for ECS Files Composer",
-  "required": [
-    "files"
-  ],
   "properties": {
     "files": {
       "type": "object",
@@ -26,6 +23,15 @@
               "$ref": "#/definitions/X509CertDef"
             }
           }
+        }
+      }
+    },
+    "certbot_store": {
+      "type": "object",
+      "uniqueItems": true,
+      "patternProperties": {
+        "[\\W\\-\\.]+$": {
+          "$ref": "#/definitions/CertbotAwsStoreCertificate"
         }
       }
     },
@@ -158,34 +164,47 @@
         "VersionStage": {
           "type": "string"
         },
+        "JsonKey": {
+          "type": "string",
+          "description": "If the SecretString is a valid JSON, use the Key to map to the value stored in secret"
+        },
         "IamOverride": {
           "$ref": "#/definitions/IamOverrideDef"
         }
       }
     },
     "S3Def": {
-      "type": "object",
-      "required": [
-        "BucketName",
-        "Key"
-      ],
-      "properties": {
-        "BucketName": {
-          "type": "string",
-          "description": "Name of the S3 Bucket"
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "BucketName",
+            "Key"
+          ],
+          "properties": {
+            "BucketName": {
+              "type": "string",
+              "description": "Name of the S3 Bucket"
+            },
+            "BucketRegion": {
+              "type": "string",
+              "description": "S3 Region to use. Default will ignore or retrieve via s3:GetBucketLocation"
+            },
+            "Key": {
+              "type": "string",
+              "description": "Full path to the file to retrieve"
+            },
+            "IamOverride": {
+              "$ref": "#/definitions/IamOverrideDef"
+            }
+          }
         },
-        "BucketRegion": {
+        {
           "type": "string",
-          "description": "S3 Region to use. Default will ignore or retrieve via s3:GetBucketLocation"
-        },
-        "Key": {
-          "type": "string",
-          "description": "Full path to the file to retrieve"
-        },
-        "IamOverride": {
-          "$ref": "#/definitions/IamOverrideDef"
+          "pattern": "^arn:aws(?:-[a-z]+)?:s3:::(\\S+)::(\\S+)$",
+          "description": "OneLiner with bucket ARN and path to key."
         }
-      }
+      ]
     },
     "IamOverrideDef": {
       "type": "object",
@@ -290,6 +309,45 @@
           "default": "root"
         }
       }
+    },
+    "CertbotAwsStoreCertificate": {
+      "type": "object",
+      "required": [
+        "storage_path"
+      ],
+      "properties": {
+        "storage_path": {
+          "type": "string",
+          "pattern": "^/[\\x00-\\x7F]+$",
+          "description": "path to folder to store the certbot certificates into."
+        },
+        "table_name": {
+          "type": "string",
+          "description": "dynamodb table name of the certbot-aws-store registry",
+          "default": "certbot-registry"
+        },
+        "table_region_name": {
+          "type": "string",
+          "description": "Region in which the table_name is. Defaults to profile default region, or eu-west-1"
+        }
+      }
     }
-  }
+  },
+  "anyOf": [
+    {
+      "required": [
+        "files"
+      ]
+    },
+    {
+      "required": [
+        "certbot_store"
+      ]
+    },
+    {
+      "required": [
+        "certificates"
+      ]
+    }
+  ]
 }
