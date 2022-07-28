@@ -41,7 +41,7 @@ def handle_certbot_store_certificates(job: Model) -> None:
             certificate.pull(_definition.storage_path)
             LOG.info("Successfully pulled certificates for %s", _hostname)
         except Exception as error:
-            LOG.exceptions(error)
+            LOG.exception(error)
             LOG.error(
                 "Failed to download certificate from certbot-aws-store", _hostname
             )
