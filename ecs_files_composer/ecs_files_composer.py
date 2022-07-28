@@ -38,6 +38,7 @@ def init_config(
     external_id=None,
     decode_base64=False,
     context=None,
+    override_folder: str = None,
 ):
     """
     Function to initialize the configuration
@@ -95,8 +96,11 @@ def init_config(
     if not initial_config:
         raise ImportError("Failed to import a configuration content")
     LOG.debug(initial_config)
-    temp_dir = TemporaryDirectory()
-    config_path = f"{temp_dir.name}/init.conf"
+    if not override_folder:
+        temp_dir = TemporaryDirectory()
+        config_path = f"{temp_dir.name}/init.conf"
+    else:
+        config_path = f"{override_folder}/init.conf"
     jobs_input_def = {
         "files": {config_path: initial_config},
         "IamOverride": iam_override,
@@ -123,7 +127,8 @@ def init_config(
 def process_files(job: Model, override_session=None) -> None:
     files: list = []
     for file_path, file in job.files.items():
-        file_redef = File(**file.dict())
+        config = json.loads(file.json(by_alias=True))
+        file_redef = File(**config)
         file_redef.path = file_path
         files.append(file_redef)
     for file in files:

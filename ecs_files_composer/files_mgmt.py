@@ -32,11 +32,6 @@ class File(FileDef):
     def __init__(self, **data: Any):
         super().__init__(**data)
         self.templates_dir = None
-        self.dir_path = None
-
-    def set_dir_path(self):
-        if self.path:
-            self.dir_path = path.abspath(path.dirname(self.path))
 
     def handler(self, iam_override=None, session_override=None):
         """
@@ -45,9 +40,7 @@ class File(FileDef):
         :param ecs_files_composer.input.IamOverrideDef iam_override:
         :param boto3.session.Session session_override:
         """
-        if not self.dir_path:
-            self.set_dir_path()
-        if self.dir_path and not path.exists(self.dir_path):
+        if not path.exists(self.dir_path):
             print(f"Creating {self.dir_path} folder")
             dir_path = pathlib.Path(path.abspath(self.dir_path))
             dir_path.mkdir(parents=True, exist_ok=True)
@@ -73,6 +66,10 @@ class File(FileDef):
         self.set_unix_settings()
         if self.commands and self.commands.post:
             self.exec_post_commands()
+
+    @property
+    def dir_path(self) -> str:
+        return path.abspath(path.dirname(self.path))
 
     def handle_sources(self, iam_override=None, session_override=None):
         """
@@ -190,8 +187,7 @@ class File(FileDef):
             template = jinja_env.get_template(path.basename(self.path))
             self.content = template.render(env=os.environ)
             self.write_content(is_template=False)
-        except jinja2.exceptions.TemplateNotFound as error:
-            LOG.exception(error)
+        except jinja2.exceptions.TemplateNotFound:
             LOG.error(listdir(self.templates_dir.name))
             raise
 

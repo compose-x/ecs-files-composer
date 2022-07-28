@@ -65,6 +65,13 @@ def main():
         required=False,
         default="jinja2",
     )
+    parser.add_argument(
+        "--override-init-folder",
+        dest="init_folder",
+        required=False,
+        type=str,
+        default="",
+    )
     parser.add_argument("_", nargs="*")
     args = parser.parse_args()
     print("Arguments: " + str(args._))
@@ -82,30 +89,35 @@ def main():
             env_var=args.env_var,
             decode_base64=args.decode_base64,
             context=args.context,
+            override_folder=args.init_folder,
         )
     elif args.file_path:
         config = init_config(
             file_path=args.file_path,
             decode_base64=args.decode_base64,
             context=args.context,
+            override_folder=args.init_folder,
         )
     elif args.ssm_config:
         config = init_config(
             ssm_parameter=args.ssm_config,
             decode_base64=args.decode_base64,
             context=args.context,
+            override_folder=args.init_folder,
         )
     elif args.s3_config:
         config = init_config(
             s3_config=args.s3_config,
             decode_base64=args.decode_base64,
             context=args.context,
+            override_folder=args.init_folder,
         )
     elif args.secret_config:
         config = init_config(
             secret_config=args.secret_config,
             decode_base64=args.decode_base64,
             context=args.context,
+            override_folder=args.init_folder,
         )
     else:
         raise parser.error(
