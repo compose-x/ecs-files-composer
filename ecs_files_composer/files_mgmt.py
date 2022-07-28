@@ -12,6 +12,7 @@ from os import path
 from tempfile import TemporaryDirectory
 from typing import Any
 
+import jinja2.exceptions
 import requests
 from botocore.response import StreamingBody
 from jinja2 import Environment, FileSystemLoader
@@ -175,6 +176,8 @@ class File(FileDef):
         Allows to use the temp directory as environment base, the original file as source template, and render
         a final template.
         """
+        from os import listdir
+
         LOG.info(f"Rendering Jinja for {self.path} - {self.templates_dir.name}")
         jinja_env = Environment(
             loader=FileSystemLoader(self.templates_dir.name),
@@ -183,9 +186,14 @@ class File(FileDef):
         )
         jinja_env.filters.update(JINJA_FILTERS)
         jinja_env.globals.update(JINJA_FUNCTIONS)
-        template = jinja_env.get_template(path.basename(self.path))
-        self.content = template.render(env=os.environ)
-        self.write_content(is_template=False)
+        try:
+            template = jinja_env.get_template(path.basename(self.path))
+            self.content = template.render(env=os.environ)
+            self.write_content(is_template=False)
+        except jinja2.exceptions.TemplateNotFound as error:
+            LOG.exception(error)
+            LOG.error(listdir(self.templates_dir.name))
+            raise
 
     def set_unix_settings(self):
         """

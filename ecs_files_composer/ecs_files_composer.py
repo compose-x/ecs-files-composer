@@ -96,7 +96,7 @@ def init_config(
         raise ImportError("Failed to import a configuration content")
     LOG.debug(initial_config)
     temp_dir = TemporaryDirectory()
-    config_path = f"{temp_dir.name}/init_config.conf"
+    config_path = f"{temp_dir.name}/init.conf"
     jobs_input_def = {
         "files": {config_path: initial_config},
         "IamOverride": iam_override,
