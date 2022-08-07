@@ -10,6 +10,7 @@ from os import environ
 
 import requests
 import yaml
+from boto3.session import Session
 
 
 def env_override(value, key):
@@ -137,10 +138,42 @@ def env_var(key, value=None):
     return environ.get(key, value)
 
 
+def from_ssm(parameter_name: str) -> str:
+    """
+    Function to retrieve an SSM parameter value
+
+    :param parameter_name: Name of the parameter
+    """
+    return (
+        Session()
+        .client("ssm")
+        .get_parameter(Name=parameter_name, WithDecryption=True)["Parameter"]["Value"]
+    )
+
+
+def from_ssm_json(parameter_name: str) -> dict:
+    """
+    Function to retrieve an SSM parameter value
+
+    :param parameter_name: Name of the parameter
+    """
+    value_str = (
+        Session()
+        .client("ssm")
+        .get_parameter(Name=parameter_name, WithDecryption=True)["Parameter"]["Value"]
+    )
+    try:
+        return json.loads(value_str)
+    except json.JSONDecodeError:
+        return {}
+
+
 JINJA_FUNCTIONS = {
     "ecs_container_metadata": ecs_container_metadata,
     "ecs_task_metadata": ecs_task_metadata,
     "env_var": env_var,
+    "from_ssm": from_ssm,
+    "from_ssm_json": from_ssm_json,
 }
 
 JINJA_FILTERS = {"to_yaml": to_yaml, "to_json": to_json, "env_override": env_override}
