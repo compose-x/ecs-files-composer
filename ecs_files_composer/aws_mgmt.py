@@ -115,7 +115,8 @@ class S3Fetcher(AwsResourceHandler):
     Class to handle S3 actions
     """
 
-    bucket_re = re.compile(r"(?:s3://)(?P<bucket>[a-z0-9-.]+)/(?P<key>[\S]+$)")
+    bucket_re = re.compile(r"^s3://(?P<bucket>[a-zA-Z\d\-.]+)/(?P<key>[\S]+)$")
+    compose_x_re = re.compile(r"^(?P<bucket>[a-zA-Z\d\-.]+)::(?P<key>[\S]+)$")
 
     def __init__(
         self,
@@ -128,21 +129,30 @@ class S3Fetcher(AwsResourceHandler):
         super().__init__(
             role_arn, external_id, region, iam_config_object, client_session_override
         )
-        self.client = self.client_session.client("s3")
 
-    def get_content(self, s3_uri=None, s3_bucket=None, s3_key=None):
+    @property
+    def client(self):
+        return self.client_session.client("s3")
+
+    def get_content(
+        self,
+        s3_uri: str = None,
+        s3_bucket: str = None,
+        s3_key: str = None,
+        composex_uri: str = None,
+    ):
         """
         Retrieves a file in a temp dir and returns content
 
-        :param str s3_uri:
-        :param str s3_bucket:
-        :param str s3_key:
         :return: The Stream Body for the file, allowing to do various things
         """
 
-        if s3_uri and self.bucket_re.match(s3_uri).groups():
+        if s3_uri and self.bucket_re.match(s3_uri):
             s3_bucket = self.bucket_re.match(s3_uri).group("bucket")
             s3_key = self.bucket_re.match(s3_uri).group("key")
+        elif composex_uri and self.compose_x_re.match(composex_uri):
+            s3_bucket = self.compose_x_re.match(composex_uri).group("bucket")
+            s3_key = self.compose_x_re.match(composex_uri).group("key")
         try:
             file_r = self.client.get_object(Bucket=s3_bucket, Key=s3_key)
             file_content = file_r["Body"]
@@ -158,7 +168,7 @@ class SsmFetcher(AwsResourceHandler):
     """
 
     arn_re = re.compile(
-        r"(?:^arn:aws(?:-[a-z]+)?:ssm:[\S]+:[0-9]+:parameter)(?P<name>/[\S]+)$"
+        r"^arn:aws(?:-[a-z]+)?:ssm:[\S]+:[\d]{12}:parameter(?P<name>/[\S]+)$"
     )
 
     def __init__(

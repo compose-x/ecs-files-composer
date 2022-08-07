@@ -41,6 +41,16 @@
     }
   },
   "definitions": {
+    "S3Uri": {
+      "type": "string",
+      "description": "s3://bucket-name/path/to/file simple syntax. Does not support IamOverride",
+      "pattern": "^s3://([a-zA-Z\\d\\-.]+)/([\\S]+)$"
+    },
+    "ComposeXUri": {
+      "type": "string",
+      "description": "bucket_name::path/to/file format used in other compose-x projects",
+      "pattern": "([a-zA-Z\\-\\d.]+)::([\\S]+)$"
+    },
     "FileDef": {
       "type": "object",
       "additionalProperties": true,
@@ -175,11 +185,31 @@
     },
     "S3Def": {
       "type": "object",
-      "required": [
-        "BucketName",
-        "Key"
+      "oneOf": [
+        {
+          "required": [
+            "BucketName",
+            "Key"
+          ]
+        },
+        {
+          "required": [
+            "S3Uri"
+          ]
+        },
+        {
+          "required": [
+            "ComposeXUri"
+          ]
+        }
       ],
       "properties": {
+        "S3Uri": {
+          "$ref": "#/definitions/S3Uri"
+        },
+        "ComposeXUri": {
+          "$ref": "#/definitions/ComposeXUri"
+        },
         "BucketName": {
           "type": "string",
           "description": "Name of the S3 Bucket"

@@ -21,13 +21,13 @@ keywords=["aws", "ecs", "k8s", "secrets", "certbot"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-boto3 = "^1.23.2"
+boto3 = "^1.24"
 pydantic = {extras = ["email"], version = "^1.9.0"}
 pyOpenSSL = "^22"
 requests = "^2.27.1"
 PyYAML = "^6.0"
 Jinja2 = "^3.1.2"
-jsonschema = "^4.5.1"
+jsonschema = "^4"
 compose-x-common = "^1.0"
 certbot-aws-store = "^0.2.2"
 
