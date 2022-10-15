@@ -11,23 +11,23 @@ batch:
   fast-fail: false
   build-graph:
 
-    - identifier: amd64
+    - identifier: x86_64
       env:
         compute-type: BUILD_GENERAL1_SMALL
         privileged-mode: true
         variables:
           VERSION: 3.9
-          ARCH: amd64
+          ARCH: x86_64
       buildspec: .cicd/build_images.yml
 
-    - identifier: arm64v8
+    - identifier: aarch64
       env:
         type: ARM_CONTAINER
         image: aws/codebuild/amazonlinux2-aarch64-standard:2.0
         compute-type: BUILD_GENERAL1_SMALL
         privileged-mode: true
         variables:
-          ARCH: arm64v8
+          ARCH: aarch64
           VERSION: 3.9
       buildspec: .cicd/build_images.yml
 
@@ -36,8 +36,8 @@ batch:
         compute-type: BUILD_GENERAL1_SMALL
         privileged-mode: true
       depend-on:
-        - amd64
-        - arm64v8
+        - x86_64
+        - aarch64
 
 phases:
   install:
@@ -65,7 +65,7 @@ phases:
   build:
     commands:
       - |
-          for ARCH in "amd64" "arm64v8"; do
+          for ARCH in "x86_64" "aarch64"; do
               ARCH_TAG=${VERSION}-${ARCH}
 
               echo Publish from ${REGISTRY_URI}ecs-files-composer:${ARCH_TAG}$ to ${PUBLIC_REGISTRY}/ecs-files-composer:${ARCH_TAG}
@@ -79,24 +79,24 @@ phases:
           done
       - |
           docker manifest create ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}  \
-              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-amd64       \
-              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-arm64v8
+              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-x86_64       \
+              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-aarch64
       - docker manifest push ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}
       - |
           docker manifest create ${AWS_MARKET_REGISTRY}/compose-x/ecs-files-composer:${VERSION}   \
-              --amend ${AWS_MARKET_REGISTRY}/compose-x/ecs-files-composer:${VERSION}-amd64        \
-              --amend ${AWS_MARKET_REGISTRY}/compose-x/ecs-files-composer:${VERSION}-arm64v8
+              --amend ${AWS_MARKET_REGISTRY}/compose-x/ecs-files-composer:${VERSION}-x86_64        \
+              --amend ${AWS_MARKET_REGISTRY}/compose-x/ecs-files-composer:${VERSION}-aarch64
       - docker manifest push ${AWS_MARKET_REGISTRY}/compose-x/ecs-files-composer:${VERSION}
       - |
           docker manifest create ${AWS_MARKET_REGISTRY}/compose-x/files-composer:${VERSION}   \
-              --amend ${AWS_MARKET_REGISTRY}/compose-x/files-composer:${VERSION}-amd64        \
-              --amend ${AWS_MARKET_REGISTRY}/compose-x/files-composer:${VERSION}-arm64v8
+              --amend ${AWS_MARKET_REGISTRY}/compose-x/files-composer:${VERSION}-x86_64        \
+              --amend ${AWS_MARKET_REGISTRY}/compose-x/files-composer:${VERSION}-aarch64
       - docker manifest push ${AWS_MARKET_REGISTRY}/compose-x/files-composer:${VERSION}
       - |
           if [ "${PRE}" == "tag" ]; then
             docker manifest create ${PUBLIC_REGISTRY}/ecs-files-composer:latest  \
-              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-amd64     \
-              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-arm64v8;
+              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-x86_64     \
+              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-aarch64;
             docker manifest push ${PUBLIC_REGISTRY}/ecs-files-composer:latest;
           fi
 
