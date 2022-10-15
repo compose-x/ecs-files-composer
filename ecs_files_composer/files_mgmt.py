@@ -212,6 +212,7 @@ class File(FileDef):
 
         """
         cmd = ["chmod", self.mode, self.path]
+        LOG.debug(f"{self.path} - {cmd}")
         try:
             res = subprocess.run(
                 cmd,
@@ -225,6 +226,7 @@ class File(FileDef):
             else:
                 raise
         cmd = ["chown", f"{self.owner}:{self.group}", self.path]
+        LOG.debug(f"{self.path} - {cmd}")
         try:
             res = subprocess.run(
                 cmd,
