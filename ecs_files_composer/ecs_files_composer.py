@@ -5,22 +5,21 @@
 
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .input import Model
 
 import json
-import uuid
 from os import environ, path
 from tempfile import TemporaryDirectory
 
 import yaml
-from compose_x_common.compose_x_common import keyisset
 from yaml import Loader
 
 from ecs_files_composer import input
-from ecs_files_composer.aws_mgmt import S3Fetcher, SecretFetcher, SsmFetcher
+from ecs_files_composer.aws_mgmt import S3Fetcher
 from ecs_files_composer.certbot_aws_store import handle_certbot_store_certificates
 from ecs_files_composer.certificates_mgmt import process_x509_certs
 from ecs_files_composer.common import LOG
@@ -110,18 +109,22 @@ def init_config(
     if context:
         initial_config["context"] = context
     start_jobs(jobs_input_def)
-    with open(config_path) as config_fd:
-        try:
-            config = yaml.load(config_fd.read(), Loader=Loader)
-            LOG.info(f"Successfully loaded YAML config {config_path}")
-            return config
-        except yaml.YAMLError:
-            config = json.loads(config_fd.read())
-            LOG.info(f"Successfully loaded JSON config {config_path}")
-            return config
-        except Exception:
-            LOG.error("Input content is neither JSON nor YAML formatted")
-            raise
+    try:
+        with open(config_path) as config_fd:
+            try:
+                config = yaml.load(config_fd.read(), Loader=Loader)
+                LOG.info(f"Successfully loaded YAML config {config_path}")
+                return config
+            except yaml.YAMLError:
+                config = json.loads(config_fd.read())
+                LOG.info(f"Successfully loaded JSON config {config_path}")
+                return config
+            except Exception:
+                LOG.error("Input content is neither JSON nor YAML formatted")
+                raise
+    except OSError as error:
+        LOG.exception(error)
+        LOG.error(f"Failed to read input file from {config_path}")
 
 
 def process_files(job: Model, override_session=None) -> None:

@@ -96,13 +96,43 @@
           ],
           "default": "plain"
         },
-        "ignore_if_failed": {
-          "type": "boolean",
-          "description": "Whether or not the failure to retrieve the file should stop the execution",
-          "default": false
+        "ignore_failure": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "commands": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Ignore if any of the commands failed"
+                },
+                "mode": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Ignore if `mode` (using chmod) failed."
+                },
+                "owner": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Ignore if `owner` (using chown) failed"
+                },
+                "source_download": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Ignore if a Source download failed. Any subsequent action is cancelled."
+                }
+              }
+            },
+            {
+              "type": "boolean",
+              "description": "Ignore if any step fails (download, transform, commands etc.)"
+            }
+          ]
         },
         "commands": {
           "type": "object",
+          "additionalProperties": false,
           "properties": {
             "post": {
               "$ref": "#/definitions/CommandsDef",

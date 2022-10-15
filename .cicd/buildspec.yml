@@ -98,6 +98,11 @@ phases:
               --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-x86_64     \
               --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-aarch64;
             docker manifest push ${PUBLIC_REGISTRY}/ecs-files-composer:latest;
+          else
+            docker manifest create ${PUBLIC_REGISTRY}/ecs-files-composer:nightly  \
+              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-x86_64     \
+              --amend ${PUBLIC_REGISTRY}/ecs-files-composer:${VERSION}-aarch64;
+            docker manifest push ${PUBLIC_REGISTRY}/ecs-files-composer:nightly;
           fi
 
     finally:

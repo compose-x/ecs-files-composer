@@ -13,9 +13,8 @@ services:
     image: public.ecr.aws/compose-x/ecs-files-composer:latest
     deploy:
       resources:
-        # Smallest RAM size for a lambda
         limits:
-          cpus: 0.1
+          cpus: "0.1"
           memory: 128M
     build:
       context: ./
