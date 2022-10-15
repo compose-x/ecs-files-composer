@@ -111,6 +111,9 @@ class File(FileDef):
             retrieved = self.handle_s3_source(iam_override, session_override)
         elif self.source.secret:
             retrieved = self.handle_secret_source(iam_override, session_override)
+        LOG.debug(
+            f"Return from source for {self.path}: {retrieved}-{ignore_source_download_error}"
+        )
         return retrieved, ignore_source_download_error
 
     def handle_ssm_source(self, iam_override=None, session_override=None) -> bool:
@@ -178,6 +181,7 @@ class File(FileDef):
                     s3_bucket=bucket_name,
                     s3_key=key,
                 )
+            return True
         except Exception as error:
             LOG.error("Failed to retrieve file from AWS S3")
             LOG.error(error)
