@@ -1,6 +1,6 @@
 ARG ARCH=
 ARG PY_VERSION=3.9
-ARG BASE_IMAGE=public.ecr.aws/compose-x/python:${PY_VERSION}
+ARG BASE_IMAGE=public.ecr.aws/docker/library/python:${PY_VERSION}-slim
 ARG LAMBDA_IMAGE=public.ecr.aws/lambda/python:latest
 FROM $BASE_IMAGE as builder
 
