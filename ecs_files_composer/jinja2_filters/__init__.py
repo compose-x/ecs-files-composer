@@ -12,6 +12,8 @@ import requests
 import yaml
 from boto3.session import Session
 
+from .aws_filters import msk_bootstrap
+
 
 def env_override(value, key):
     """
@@ -174,6 +176,7 @@ JINJA_FUNCTIONS = {
     "env_var": env_var,
     "from_ssm": from_ssm,
     "from_ssm_json": from_ssm_json,
+    "msk_bootstrap": msk_bootstrap,
 }
 
 JINJA_FILTERS = {"to_yaml": to_yaml, "to_json": to_json, "env_override": env_override}

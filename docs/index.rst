@@ -87,6 +87,7 @@ docker-compose
     installation
     input
     features
+    jinja2_functions_filters
     examples
     modules
     contributing
