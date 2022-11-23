@@ -20,7 +20,6 @@ from yaml import Loader
 
 from ecs_files_composer import input
 from ecs_files_composer.aws_mgmt import S3Fetcher
-from ecs_files_composer.certbot_aws_store import handle_certbot_store_certificates
 from ecs_files_composer.certificates_mgmt import process_x509_certs
 from ecs_files_composer.common import LOG
 from ecs_files_composer.files_mgmt import File
@@ -150,7 +149,5 @@ def start_jobs(config: dict, override_session=None):
     job = input.Model(**config)
     if job.certificates:
         process_x509_certs(job)
-    if job.certbot_store:
-        handle_certbot_store_certificates(job)
     if job.files:
         process_files(job, override_session)
