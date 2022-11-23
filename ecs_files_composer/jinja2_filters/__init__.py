@@ -11,6 +11,7 @@ from os import environ
 import requests
 import yaml
 from boto3.session import Session
+from flatdict import FlatDict, FlatterDict
 
 from .aws_filters import msk_bootstrap
 
@@ -91,7 +92,14 @@ def from_metadata_to_flat_keys(metadata):
     return new_metadata
 
 
-def get_property(metadata, property_key):
+def get_property(metadata, property_key, separator: str = None):
+    if separator is None:
+        separator = r"::"
+    metadata_mapping = FlatterDict(metadata)
+    metadata_mapping.set_delimiter(separator)
+    if property_key in metadata_mapping:
+        return metadata_mapping[property_key]
+
     metadata_mapping = from_metadata_to_flat_keys(metadata)
     property_re = re.compile(property_key)
     for key, value in metadata_mapping.items():
@@ -170,6 +178,24 @@ def from_ssm_json(parameter_name: str) -> dict:
         return {}
 
 
+def hostname(alternative_value: str = None) -> str:
+    try:
+        import platform
+
+        return str(platform.node())
+    except Exception as error:
+        print("Error with platform", error)
+        try:
+            import socket
+
+            return str(socket.gethostname())
+        except Exception as error:
+            print("Error with socket", error)
+            pass
+    if alternative_value:
+        return alternative_value
+
+
 JINJA_FUNCTIONS = {
     "ecs_container_metadata": ecs_container_metadata,
     "ecs_task_metadata": ecs_task_metadata,
@@ -177,6 +203,7 @@ JINJA_FUNCTIONS = {
     "from_ssm": from_ssm,
     "from_ssm_json": from_ssm_json,
     "msk_bootstrap": msk_bootstrap,
+    "hostname": hostname,
 }
 
 JINJA_FILTERS = {"to_yaml": to_yaml, "to_json": to_json, "env_override": env_override}

@@ -12,6 +12,7 @@ import pytest
 
 from ecs_files_composer import input
 from ecs_files_composer.ecs_files_composer import start_jobs
+from ecs_files_composer.jinja2_filters import get_property
 
 HERE = path.abspath(path.dirname(__file__))
 
@@ -115,3 +116,14 @@ test_task = {
     ],
     "LaunchType": "FARGATE",
 }
+
+
+def test_get_property():
+    assert (
+        get_property(test_container, "Networks::0::PrivateDNSName")
+        == "ip-10-0-0-222.us-west-2.compute.internal"
+    )
+    assert (
+        get_property(test_container, "PrivateDNSName")
+        == "ip-10-0-0-222.us-west-2.compute.internal"
+    )
