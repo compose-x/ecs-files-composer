@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ecs_files_composer"
-version = "1.1.1"
+version = "1.1.2"
 description = "Files and configuration handler to inject configuration files into volumes for ECS containers"
 authors = ["John Preston <john@compose-x.io>"]
 license = "MPL-2.0"
@@ -91,7 +91,7 @@ omit = ["ecs_files_composer/cli.py"]
 github_url = "https://github.com/compose-x/ecs-files-composer"
 
 [tool.tbump.version]
-current = "1.1.1"
+current = "1.1.2"
 
 regex = '''
   (?P<major>\d+)
@@ -115,5 +115,5 @@ src = "pyproject.toml"
 [[tool.tbump.file]]
 src = "ecs_files_composer/__init__.py"
 [build-system]
-requires = ["poetry-core>=1.1.1"]
+requires = ["poetry-core>=1.1.2"]
 build-backend = "poetry.core.masonry.api"
