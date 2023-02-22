@@ -52,7 +52,7 @@ AWS Secrets Manager Source
 .. attention::
 
     This should only be used for very edgy use-cases, such as retrieving certificates stored as flat content in AWS SSM.
-    You should absolutely use the `AWS ECS Task Definition Secrets`_ definitions
+    Alternatively you can use the `AWS ECS Task Definition Secrets`_ definitions
 
     .. seealso::
 
@@ -69,6 +69,23 @@ accessible.
 
     We do not recommend to put the basic auth credentials in plain text in the configuration, unless the source
     of the configuration for ECS Files Composer comes from AWS Secrets manager.
+
+Self-signed certificates rendering
+====================================
+
+.. code-block::
+
+    certificates:
+      x509:
+        /tmp/testinggg:
+          keyFileName: nginx.key
+          certFileName: nginx.crt
+          commonName: test.net
+
+.. seealso::
+
+    More details on all the available options for :ref:`certificates`
+
 
 Files Rendering
 ====================

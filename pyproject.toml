@@ -30,6 +30,7 @@ Jinja2 = "^3.1.2"
 jsonschema = "^4.7"
 compose-x-common = "^1.2"
 flatdict = "^4.0.1"
+pyjks = "^20.0.0"
 
 [tool.poetry.dev-dependencies]
 placebo = "^0.10"

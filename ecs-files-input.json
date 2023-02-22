@@ -320,23 +320,23 @@
         "countryName": {
           "type": "string",
           "pattern": "^[A-Z]+$",
-          "default": "AW"
+          "default": "ZZ"
         },
         "localityName": {
           "type": "string",
-          "default": "AWS"
+          "default": "Anywhere"
         },
         "stateOrProvinceName": {
           "type": "string",
-          "default": "AWS"
+          "default": "Shire"
         },
         "organizationName": {
           "type": "string",
-          "default": "AWS"
+          "default": "NoOne"
         },
         "organizationUnitName": {
           "type": "string",
-          "default": "AWS"
+          "default": "Automation"
         },
         "validityEndInSeconds": {
           "type": "number",
@@ -358,6 +358,25 @@
           "type": "string",
           "description": "UNIX user or UID owner of the file. Default to root(0)",
           "default": "root"
+        },
+        "jksConfig": {
+          "description": "Configuration that will allow to transform the certificate into a JKS for java applications",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "fileName",
+            "passphrase"
+          ],
+          "properties": {
+            "fileName": {
+              "type": "string",
+              "description": "Name of the JKS file to create"
+            },
+            "passphrase": {
+              "type": "string",
+              "description": "The passphrase to use to secure the jks and certificate"
+            }
+          }
         }
       }
     },
