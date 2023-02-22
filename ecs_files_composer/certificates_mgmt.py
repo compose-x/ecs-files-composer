@@ -6,6 +6,7 @@ import socket
 from os import path
 from typing import Any
 
+import jks as pyjks
 from OpenSSL import crypto
 
 from ecs_files_composer.files_mgmt import File
@@ -27,6 +28,7 @@ class X509Certificate(X509CertDef):
         self.key_file = None
         self.cert_file_path = None
         self.key_file_path = None
+        self.keystore = None
 
     def init_cert_paths(self):
         self.cert_file_path = path.abspath(f"{self.dir_path}/{self.cert_file_name}")
@@ -95,6 +97,22 @@ class X509Certificate(X509CertDef):
             }
         )
 
+    def generate_jks(self):
+        """
+        Creates a JKS from the private key and certificate
+        :return:
+        """
+        jks_path = path.abspath(f"{self.dir_path}/{self.jks_config.file_name}")
+        pkey = pyjks.jks.PrivateKeyEntry.new(
+            self.key_file_name,
+            certs=[crypto.dump_certificate(crypto.FILETYPE_ASN1, self.cert)],
+            key=self.key_content,
+            key_format="rsa_raw",
+        )
+        pkey.encrypt(self.jks_config.passphrase)
+        self.keystore = pyjks.KeyStore.new("jks", [pkey])
+        self.keystore.save(jks_path, self.jks_config.passphrase)
+
 
 def process_x509_certs(job):
     """
@@ -111,6 +129,10 @@ def process_x509_certs(job):
         cert_obj.dir_path = cert_path
         cert_obj.init_cert_paths()
         cert_obj.set_cert_files()
+        if cert_obj.jks_config:
+            cert_obj.generate_jks()
         job.certificates.x509[cert_path] = cert_obj
+        if not job.files:
+            job.files = {}
         job.files[cert_obj.cert_file.path] = cert_obj.cert_file
         job.files[cert_obj.key_file_path] = cert_obj.key_file
