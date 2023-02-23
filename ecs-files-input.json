@@ -28,10 +28,24 @@
     },
     "certbot_store": {
       "type": "object",
-      "uniqueItems": true,
-      "patternProperties": {
-        "[\\W\\-\\.]+$": {
-          "$ref": "#/definitions/CertbotAwsStoreCertificate"
+      "properties": {
+        "certificates_registry_table_name": {
+          "type": "string",
+          "description": "default table name to query for certificates.",
+          "default": "certbot-registry"
+        },
+        "certificates_registry_table_region": {
+          "type": "string",
+          "description": "region to use for the certificates_registry_table_name. Defaults to current region found in profiles chain."
+        },
+        "certificates": {
+          "type": "object",
+          "uniqueItems": true,
+          "patternProperties": {
+            "[\\W\\-\\.]+$": {
+              "$ref": "#/definitions/CertbotAwsStoreCertificate"
+            }
+          }
         }
       }
     },
@@ -360,23 +374,26 @@
           "default": "root"
         },
         "jksConfig": {
-          "description": "Configuration that will allow to transform the certificate into a JKS for java applications",
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "fileName",
-            "passphrase"
-          ],
-          "properties": {
-            "fileName": {
-              "type": "string",
-              "description": "Name of the JKS file to create"
-            },
-            "passphrase": {
-              "type": "string",
-              "description": "The passphrase to use to secure the jks and certificate"
-            }
-          }
+          "$ref": "#/definitions/jksConfig"
+        }
+      }
+    },
+    "jksConfig": {
+      "description": "Configuration that will allow to transform the certificate into a JKS for java applications",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fileName",
+        "passphrase"
+      ],
+      "properties": {
+        "fileName": {
+          "type": "string",
+          "description": "Name of the JKS file to create"
+        },
+        "passphrase": {
+          "type": "string",
+          "description": "The passphrase to use to secure the jks and certificate"
         }
       }
     },
@@ -391,14 +408,17 @@
           "pattern": "^/[\\x00-\\x7F]+$",
           "description": "path to folder to store the certbot certificates into."
         },
-        "table_name": {
+        "certificates_registry_table_name": {
           "type": "string",
-          "description": "dynamodb table name of the certbot-aws-store registry",
-          "default": "certbot-registry"
+          "description": "Override the top level certificates_registry_table_name"
         },
-        "table_region_name": {
+        "certificates_registry_table_region": {
           "type": "string",
-          "description": "Region in which the table_name is. Defaults to profile default region, or eu-west-1"
+          "description": "Override the top level certificates_registry_table_region"
+        },
+        "jksConfig": {
+          "$ref": "#/definitions/jksConfig",
+          "description": "Automatically creates a JKS with the retrieved certificate."
         }
       }
     }
