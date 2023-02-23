@@ -3,7 +3,7 @@ ARG PY_VERSION=3.9
 ARG BASE_IMAGE=public.ecr.aws/docker/library/python:${PY_VERSION}-slim
 ARG LAMBDA_IMAGE=public.ecr.aws/lambda/python:latest
 
-FROM $LAMBDA_IMAGE as builder
+FROM $LAMBDA_IMAGE AS builder
 
 WORKDIR /opt
 COPY ecs_files_composer /opt/ecs_files_composer
