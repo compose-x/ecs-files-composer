@@ -27,21 +27,22 @@ pyOpenSSL = "^22"
 requests = "^2.27.1"
 PyYAML = "^6.0"
 Jinja2 = "^3.1.2"
-jsonschema = "^4.7"
+jsonschema = "^4.17"
 compose-x-common = "^1.2"
 flatdict = "^4.0.1"
 pyjks = "^20.0.0"
+certbot-aws-store = "^0.4.2.post0"
 
 [tool.poetry.dev-dependencies]
 placebo = "^0.10"
-datamodel-code-generator = {extras = ["http"], version = "^0.14"}
-black = "^22.3.0"
+datamodel-code-generator = {extras = ["http"], version = "^0.15"}
+black = "^23.1"
 isort = "^5.10.1"
-coverage = "^6.4"
+coverage = "^7.1"
 behave = "^1.2.6"
 pytest = "^7"
 watchdog = "^2.1.8"
-pre-commit = "^2.19.0"
+pre-commit = "^3.0"
 tbump = "^6.9.0"
 
 [tool.poetry.scripts]

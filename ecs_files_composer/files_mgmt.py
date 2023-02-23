@@ -3,6 +3,8 @@
 
 """Main module."""
 
+from __future__ import annotations
+
 import base64
 import os
 import pathlib
@@ -15,7 +17,6 @@ from typing import Any
 import jinja2.exceptions
 import requests
 from botocore.response import StreamingBody
-from compose_x_common.compose_x_common import keyisset
 from jinja2 import Environment, FileSystemLoader
 
 from ecs_files_composer.aws_mgmt import S3Fetcher, SecretFetcher, SsmFetcher
@@ -68,7 +69,6 @@ class File(FileDef):
         self.post_processing()
 
     def files_content_processing(self) -> None:
-
         if self.content and self.encoding and self.encoding == Encoding["base64"]:
             self.content = base64.b64decode(self.content).decode()
         if self.templates_dir:
@@ -305,7 +305,6 @@ class File(FileDef):
                 raise
 
     def exec_post_commands(self):
-
         ignore_post_command_failure = (
             self.ignore_failure
             if self.ignore_failure and isinstance(self.ignore_failure, bool)
