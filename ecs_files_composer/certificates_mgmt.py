@@ -20,7 +20,7 @@ class X509Certificate(X509CertDef):
 
     def __init__(self, **data: Any):
         super().__init__(**data)
-        self.key = None
+        self.key: crypto.PKey = None
         self.cert = None
         self.key_content = None
         self.cert_content = None
@@ -106,7 +106,7 @@ class X509Certificate(X509CertDef):
         pkey = pyjks.jks.PrivateKeyEntry.new(
             self.key_file_name,
             certs=[crypto.dump_certificate(crypto.FILETYPE_ASN1, self.cert)],
-            key=self.key_content,
+            key=crypto.dump_privatekey(crypto.FILETYPE_ASN1, self.key),
             key_format="rsa_raw",
         )
         pkey.encrypt(self.jks_config.passphrase)

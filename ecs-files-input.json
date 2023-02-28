@@ -415,10 +415,6 @@
         "certificates_registry_table_region": {
           "type": "string",
           "description": "Override the top level certificates_registry_table_region"
-        },
-        "jksConfig": {
-          "$ref": "#/definitions/jksConfig",
-          "description": "Automatically creates a JKS with the retrieved certificate."
         }
       }
     }
