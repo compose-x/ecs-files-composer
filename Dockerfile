@@ -10,15 +10,20 @@ COPY ecs_files_composer /opt/ecs_files_composer
 COPY poetry.lock pyproject.toml MANIFEST.in README.rst LICENSE /opt/
 RUN yum install gcc -y
 RUN python -m pip install pip -U; python -m pip install poetry; poetry build
-RUN pip install wheel --no-cache-dir && pip install dist/*.whl --no-cache-dir -t /opt/venv
-RUN find /opt/venv -type d -name "*pycache*" | xargs -i -P10 rm -rf {}
+RUN #pip install wheel --no-cache-dir && pip install dist/*.whl --no-cache-dir -t /opt/venv
+#RUN find /opt/venv -type d -name "*pycache*" | xargs -i -P10 rm -rf {}
 
 FROM $BASE_IMAGE
 
-COPY --from=builder /opt/venv ${LAMBDA_TASK_ROOT:-/app/}/venv
-ENV PYTHONPATH /app/venv:$PYTHONPATH
-ENV LD_LIBRARY_PATH=/app/venv:$LD_LIBRARY_PATH
-ENV PATH /app/venv/bin:$PATH
+COPY --from=builder /opt/dist/*.whl ${LAMBDA_TASK_ROOT:-/app/}/dist/
+RUN apt-get update; apt-get install gcc -y; \
+    python -m pip install pip -U --no-cache-dir; \
+    python -m pip install /app/dist/*.whl ;\
+    apt-get purge gcc -y; \
+    sudo apt-get --purge autoremove;\
+    apt-get autoremove --yes ; \
+    apt-get clean autoclean ; \
+    rm -rf /var/lib/{apt,dpkg,cache,log}/
 WORKDIR /
 ENTRYPOINT ["python", "-m", "ecs_files_composer.cli"]
 CMD ["-h"]
