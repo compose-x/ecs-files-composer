@@ -6,6 +6,7 @@ Package allowing to expand the Jinja filters to use.
 """
 import json
 import re
+from base64 import b64decode, b64encode
 from os import environ
 
 import requests
@@ -144,6 +145,19 @@ def to_json(value, indent=2):
     return json.dumps(value, indent=indent)
 
 
+def base64encode(value: str):
+    """Return value base64 encoded"""
+    try:
+        return b64encode(value).decode("utf-8")
+    except TypeError:
+        return b64encode(value.encode("utf-8")).decode("utf-8")
+
+
+def base64decode(value) -> bytes:
+    """Decodes base64 encoded value"""
+    return b64decode(value)
+
+
 def env_var(key, value=None):
     return environ.get(key, value)
 
@@ -206,4 +220,10 @@ JINJA_FUNCTIONS = {
     "hostname": hostname,
 }
 
-JINJA_FILTERS = {"to_yaml": to_yaml, "to_json": to_json, "env_override": env_override}
+JINJA_FILTERS = {
+    "to_yaml": to_yaml,
+    "to_json": to_json,
+    "env_override": env_override,
+    "base64encode": base64encode,
+    "base64decode": base64decode,
+}
