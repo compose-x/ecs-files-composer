@@ -21,8 +21,8 @@ keywords=["aws", "ecs", "k8s", "secrets"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-boto3 = "^1.26"
-pydantic = {extras = ["email"], version = "^1.9.0"}
+boto3 = ">=1.27,<2.0"
+pydantic = {extras = ["email"], version = "^1.9"}
 pyOpenSSL = "^22"
 requests = "^2.27.1"
 PyYAML = "^6.0"
@@ -35,14 +35,14 @@ certbot-aws-store = "^0.4.2.post0"
 
 [tool.poetry.dev-dependencies]
 placebo = "^0.10"
-datamodel-code-generator = {extras = ["http"], version = "^0.15"}
+datamodel-code-generator = {extras = ["http"], version = "^0.21"}
 black = "^23.1"
 isort = "^5.10.1"
 coverage = "^7.1"
 behave = "^1.2.6"
 pytest = "^7"
 watchdog = "^3.0"
-pre-commit = "^3.0"
+pre-commit = "^3.3"
 tbump = "^6.9.0"
 
 [tool.poetry.scripts]
@@ -53,6 +53,10 @@ ecs_files_composer = "ecs_files_composer.cli:main"
 sphinx = "^5.3.0"
 sphinx-material = "^0.0.35"
 sphinx-jsonschema = "^1.19.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.3.3"
 
 [tool.datamodel-codegen]
 input = "ecs-files-input.json"
@@ -117,5 +121,5 @@ src = "pyproject.toml"
 [[tool.tbump.file]]
 src = "ecs_files_composer/__init__.py"
 [build-system]
-requires = ["poetry-core>=1.2.1"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
