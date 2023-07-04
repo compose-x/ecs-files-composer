@@ -5,4 +5,4 @@
 
 __author__ = """John Preston"""
 __email__ = "john@compose-x.io"
-__version__ = "1.2.2.post0"
+__version__ = "1.3.0"
