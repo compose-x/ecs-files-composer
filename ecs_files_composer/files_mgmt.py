@@ -150,15 +150,13 @@ class File(FileDef):
         :param boto3.session.Session session_override:
         :return: bool, result of the download from S3.
         """
-        from ecs_files_composer.input import S3Def1
+        from ecs_files_composer.input import S3Def
 
-        if not isinstance(self.source.s3.__root__, S3Def1):
-            raise TypeError(
-                "S3 source is not of type S3Def1", type(self.source.s3.__root__)
-            )
+        if not isinstance(self.source.s3, S3Def):
+            raise TypeError("S3 source is not of type S3Def", type(self.source.s3))
 
-        if self.source.s3.__root__.iam_override:
-            fetcher = S3Fetcher(iam_config_object=self.source.s3.__root__.iam_override)
+        if self.source.s3.iam_override:
+            fetcher = S3Fetcher(iam_config_object=self.source.s3.iam_override)
         elif iam_override:
             fetcher = S3Fetcher(iam_config_object=iam_override)
         elif session_override:
@@ -166,17 +164,17 @@ class File(FileDef):
         else:
             fetcher = S3Fetcher()
         try:
-            if self.source.s3.__root__.s3_uri:
+            if self.source.s3.s3_uri:
                 self.content = fetcher.get_content(
-                    s3_uri=self.source.s3.__root__.s3_uri.__root__,
+                    s3_uri=self.source.s3.s3_uri.__root__,
                 )
-            elif self.source.s3.__root__.compose_x_uri:
+            elif self.source.s3.compose_x_uri:
                 self.content = fetcher.get_content(
-                    composex_uri=self.source.s3.__root__.compose_x_uri.__root__,
+                    composex_uri=self.source.s3.compose_x_uri.__root__,
                 )
             else:
-                bucket_name = expandvars(self.source.s3.__root__.bucket_name)
-                key = expandvars(self.source.s3.__root__.key)
+                bucket_name = expandvars(self.source.s3.bucket_name)
+                key = expandvars(self.source.s3.key)
                 self.content = fetcher.get_content(
                     s3_bucket=bucket_name,
                     s3_key=key,

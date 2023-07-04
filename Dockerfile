@@ -10,8 +10,7 @@ COPY ecs_files_composer /opt/ecs_files_composer
 COPY poetry.lock pyproject.toml MANIFEST.in README.rst LICENSE /opt/
 RUN yum install gcc -y
 RUN python -m pip install pip -U; python -m pip install poetry; poetry build
-RUN #pip install wheel --no-cache-dir && pip install dist/*.whl --no-cache-dir -t /opt/venv
-#RUN find /opt/venv -type d -name "*pycache*" | xargs -i -P10 rm -rf {}
+
 
 FROM $BASE_IMAGE
 
@@ -20,7 +19,7 @@ RUN apt-get update; apt-get install gcc -y; \
     python -m pip install pip -U --no-cache-dir; \
     python -m pip install /app/dist/*.whl ;\
     apt-get purge gcc -y; \
-    sudo apt-get --purge autoremove;\
+    apt-get --purge autoremove;\
     apt-get autoremove --yes ; \
     apt-get clean autoclean ; \
     rm -rf /var/lib/{apt,dpkg,cache,log}/
