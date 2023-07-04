@@ -33,7 +33,7 @@ flatdict = "^4.0.1"
 pyjks = "^20.0.0"
 certbot-aws-store = "^0.4.2.post0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 placebo = "^0.10"
 datamodel-code-generator = {extras = ["http"], version = "^0.21"}
 black = "^23.1"
@@ -45,6 +45,7 @@ watchdog = "^3.0"
 pre-commit = "^3.3"
 tbump = "^6.9.0"
 
+
 [tool.poetry.scripts]
 files_composer = "ecs_files_composer.cli:main"
 ecs_files_composer = "ecs_files_composer.cli:main"
@@ -53,10 +54,6 @@ ecs_files_composer = "ecs_files_composer.cli:main"
 sphinx = "^5.3.0"
 sphinx-material = "^0.0.35"
 sphinx-jsonschema = "^1.19.1"
-
-
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^3.3.3"
 
 [tool.datamodel-codegen]
 input = "ecs-files-input.json"
