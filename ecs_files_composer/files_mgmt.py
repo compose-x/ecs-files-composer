@@ -310,7 +310,7 @@ class File(FileDef):
         )
         if self.ignore_failure and isinstance(self.ignore_failure, IgnoreFailureItem):
             ignore_post_command_failure = self.ignore_failure.commands
-        commands = self.commands.post
+        commands = self.commands.post.__root__
         for command in commands:
             cmd = command
             if isinstance(command, str):

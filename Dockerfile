@@ -19,7 +19,7 @@ RUN apt-get update; apt-get install gcc -y; \
     python -m pip install pip -U --no-cache-dir; \
     python -m pip install /app/dist/*.whl ;\
     apt-get purge gcc -y; \
-    sudo apt-get --purge autoremove;\
+    apt-get --purge autoremove;\
     apt-get autoremove --yes ; \
     apt-get clean autoclean ; \
     rm -rf /var/lib/{apt,dpkg,cache,log}/
