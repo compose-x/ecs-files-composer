@@ -7,6 +7,7 @@ repos:
       - id: check-case-conflict
       - id: check-json
       - id: check-yaml
+        exclude: .cicd/*.template
       - id: check-toml
       - id: end-of-file-fixer
       - id: trailing-whitespace
@@ -16,14 +17,14 @@ repos:
       - id: fix-byte-order-marker
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.8.0
+    rev: v3.10.1
     hooks:
       - id: pyupgrade
         args: [ "--py38-plus" ]
         exclude: ^ecs_files_composer/input.py|docs/
 
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.7.0
     hooks:
       - id: black
   - repo: https://github.com/pycqa/isort
