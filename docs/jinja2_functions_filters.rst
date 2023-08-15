@@ -37,6 +37,26 @@ Parameters:
 * ``fallback_value``: a value to use if case the property is missing.
 
 
+from_resolve
+--------------
+
+Parameter: A string that looks like the {{resolve:}} string in AWS CloudFormation
+
+For example, building the string below, we retrieve the key `SASL_JAAS_CONFIG` from the content of the secret, which we
+get the ARN from the `env_var` function with value `SECRET_ARN`
+
+.. code-block:: yaml
+
+    files:
+      /tmp/secret.test:
+        content: |
+          client.id=sainsburys.applications.sc-ce.cdk-gateway
+          sasl.mechanism=PLAIN
+          sasl.jaas.config={{ from_resolve('{{resolve:secretsmanager:'  + env_var('SECRET_ARN') + ':SecretString:SASL_JAAS_CONFIG}}') | safe }}
+          security.protocol=SASL_SSL
+          #EOF
+
+
 
 AWS Specific Filters
 =====================

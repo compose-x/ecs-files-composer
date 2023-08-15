@@ -11,6 +11,7 @@ from os import environ
 
 import requests
 import yaml
+from aws_cfn_custom_resource_resolve_parser import handle
 from boto3.session import Session
 from flatdict import FlatDict, FlatterDict
 
@@ -210,12 +211,17 @@ def hostname(alternative_value: str = None) -> str:
         return alternative_value
 
 
+def using_resolve(resolve_string: str) -> str:
+    return handle(resolve_string)
+
+
 JINJA_FUNCTIONS = {
     "ecs_container_metadata": ecs_container_metadata,
     "ecs_task_metadata": ecs_task_metadata,
     "env_var": env_var,
     "from_ssm": from_ssm,
     "from_ssm_json": from_ssm_json,
+    "from_resolve": using_resolve,
     "msk_bootstrap": msk_bootstrap,
     "hostname": hostname,
 }
