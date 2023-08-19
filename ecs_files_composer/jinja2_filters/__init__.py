@@ -12,8 +12,6 @@ from os import environ
 import yaml
 from flatdict import FlatterDict
 
-from .aws_filters import msk_bootstrap
-
 
 def env_override(value, key):
     """
