@@ -134,11 +134,16 @@ def ec2_zone_id(subnet_id: str = None):
 
 def dump_ecs_details():
     print("Dumping ECS Details")
-    print("ECS Container Metadata: ", ecs_container_metadata)
-    print("ECS Task Metadata: ", ecs_task_metadata)
+    print("ECS Container Metadata: ", ecs_container_metadata())
+    print("ECS Task Metadata: ", ecs_task_metadata())
     vpc_id = ecs_task_metadata("VPCID")
     subnet_range = ecs_task_metadata("Networks::0::IPv4SubnetCIDRBlock")
-    subnet_details = get_ec2_subnet_from_vpc_and_ip_cidr(
-        vpc_id, subnet_range, Session()
-    )
-    print("Container subnet details: ", subnet_details)
+    print("VPC ID: ", vpc_id)
+    print("Subnet Range: ", subnet_range)
+    try:
+        subnet_details = get_ec2_subnet_from_vpc_and_ip_cidr(
+            vpc_id, subnet_range, Session()
+        )
+        print("Container subnet details: ", subnet_details)
+    except Exception as error:
+        print("Could not retrieve subnet details", error)
