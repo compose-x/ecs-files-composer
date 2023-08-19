@@ -9,11 +9,8 @@ import re
 from base64 import b64decode, b64encode
 from os import environ
 
-import requests
 import yaml
-from aws_cfn_custom_resource_resolve_parser import handle
-from boto3.session import Session
-from flatdict import FlatDict, FlatterDict
+from flatdict import FlatterDict
 
 from .aws_filters import msk_bootstrap
 
@@ -26,22 +23,6 @@ def env_override(value, key):
     :return:
     """
     return environ.get(key, value)
-
-
-def define_metadata(for_task=False):
-    meta_v4 = "ECS_CONTAINER_METADATA_URI_V4"
-    meta_v3 = "ECS_CONTAINER_METADATA_URI"
-
-    if environ.get(meta_v3, None):
-        meta_url = environ.get(meta_v3)
-    elif environ.get(meta_v4, None):
-        meta_url = environ.get(meta_v4)
-    else:
-        raise OSError("No ECS Metadata URL provided. This filter only works on ECS")
-    if for_task:
-        return requests.get(f"{meta_url}/task")
-    else:
-        return requests.get(meta_url)
 
 
 def from_list_to_dict(top_key, new_mapping, to_convert):
@@ -110,30 +91,6 @@ def get_property(metadata, property_key, separator: str = None):
     return None
 
 
-def ecs_container_metadata(property_key=None, fallback_value=None):
-    metadata_raw = define_metadata()
-    metadata = metadata_raw.json()
-    if property_key:
-        value = get_property(metadata, property_key)
-        if value is None:
-            print(f"No task property found matching {property_key}")
-            return fallback_value
-        return value
-    return metadata
-
-
-def ecs_task_metadata(property_key=None, fallback_value=None):
-    metadata_raw = define_metadata(for_task=True)
-    metadata = metadata_raw.json()
-    if property_key:
-        value = get_property(metadata, property_key)
-        if value is None:
-            print(f"No task property found matching {property_key}")
-            return fallback_value
-        return value
-    return metadata
-
-
 def to_yaml(value):
     """
     Filter to render input to YAML formatted content
@@ -158,73 +115,6 @@ def base64decode(value) -> bytes:
     """Decodes base64 encoded value"""
     return b64decode(value)
 
-
-def env_var(key, value=None):
-    return environ.get(key, value)
-
-
-def from_ssm(parameter_name: str) -> str:
-    """
-    Function to retrieve an SSM parameter value
-
-    :param parameter_name: Name of the parameter
-    """
-    return (
-        Session()
-        .client("ssm")
-        .get_parameter(Name=parameter_name, WithDecryption=True)["Parameter"]["Value"]
-    )
-
-
-def from_ssm_json(parameter_name: str) -> dict:
-    """
-    Function to retrieve an SSM parameter value
-
-    :param parameter_name: Name of the parameter
-    """
-    value_str = (
-        Session()
-        .client("ssm")
-        .get_parameter(Name=parameter_name, WithDecryption=True)["Parameter"]["Value"]
-    )
-    try:
-        return json.loads(value_str)
-    except json.JSONDecodeError:
-        return {}
-
-
-def hostname(alternative_value: str = None) -> str:
-    try:
-        import platform
-
-        return str(platform.node())
-    except Exception as error:
-        print("Error with platform", error)
-        try:
-            import socket
-
-            return str(socket.gethostname())
-        except Exception as error:
-            print("Error with socket", error)
-            pass
-    if alternative_value:
-        return alternative_value
-
-
-def using_resolve(resolve_string: str) -> str:
-    return handle(resolve_string)
-
-
-JINJA_FUNCTIONS = {
-    "ecs_container_metadata": ecs_container_metadata,
-    "ecs_task_metadata": ecs_task_metadata,
-    "env_var": env_var,
-    "from_ssm": from_ssm,
-    "from_ssm_json": from_ssm_json,
-    "from_resolve": using_resolve,
-    "msk_bootstrap": msk_bootstrap,
-    "hostname": hostname,
-}
 
 JINJA_FILTERS = {
     "to_yaml": to_yaml,
