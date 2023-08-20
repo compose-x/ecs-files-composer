@@ -29,7 +29,6 @@ def setup_logging():
     }
 
     if level is not None and isinstance(level, str):
-        print("SETTING TO", level.upper())
         logthings.basicConfig(level=level.upper())
         default_level = False
     else:
@@ -38,7 +37,7 @@ def setup_logging():
     root_logger = logthings.getLogger()
     for h in root_logger.handlers:
         root_logger.removeHandler(h)
-    the_logger = logthings.getLogger("EcsComposeX")
+    the_logger = logthings.getLogger("FilesComposer")
 
     if not the_logger.handlers:
         if default_level:

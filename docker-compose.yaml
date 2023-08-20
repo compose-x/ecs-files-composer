@@ -10,7 +10,7 @@ services:
   files-sidecar:
     volumes:
       - localshared:/opt/files/
-    image: public.ecr.aws/compose-x/ecs-files-composer:latest
+    image: public.ecr.aws/compose-x/ecs-files-composer:nightly
     deploy:
       resources:
         limits:

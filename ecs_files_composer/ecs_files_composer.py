@@ -89,6 +89,8 @@ def init_config(
     elif raw:
         initial_config = {"content": raw}
     elif env_var:
+        LOG.debug(f"Using env var {env_var}")
+        LOG.debug(f"Value is {environ.get(env_var)}")
         initial_config = {"content": environ.get(env_var, None)}
     else:
         raise ValueError("No input source was provided")

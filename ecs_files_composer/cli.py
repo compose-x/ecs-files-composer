@@ -8,6 +8,7 @@ from os import environ
 
 from ecs_files_composer.common import LOG
 from ecs_files_composer.ecs_files_composer import init_config, start_jobs
+from ecs_files_composer.jinja2_functions.aws import dump_ecs_details
 
 
 def main():
@@ -72,9 +73,16 @@ def main():
         type=str,
         default="",
     )
-    parser.add_argument("_", nargs="*")
+    parser.add_argument(
+        "--dump-ecs-details",
+        action="store_true",
+        required=False,
+        help="On startup, dumps ecs metadata to stdout",
+    )
     args = parser.parse_args()
-    print("Arguments: " + str(args._))
+    LOG.debug(f"CLI ARGS?: {args}")
+    if args.dump_ecs_details:
+        dump_ecs_details()
     if not (
         args.env_var or args.ssm_config or args.s3_config or args.file_path
     ) and environ.get("ECS_CONFIG_CONTENT", None):
@@ -123,7 +131,6 @@ def main():
         raise parser.error(
             "You must specify where the execution configuration comes from or set ECS_CONFIG_CONTENT."
         )
-
     start_jobs(config)
     return 0
 

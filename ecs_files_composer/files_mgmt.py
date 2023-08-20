@@ -23,7 +23,8 @@ from ecs_files_composer.aws_mgmt import S3Fetcher, SecretFetcher, SsmFetcher
 from ecs_files_composer.common import LOG
 from ecs_files_composer.envsubst import expandvars
 from ecs_files_composer.input import Context, Encoding, FileDef, IgnoreFailureItem
-from ecs_files_composer.jinja2_filters import JINJA_FILTERS, JINJA_FUNCTIONS
+from ecs_files_composer.jinja2_filters import JINJA_FILTERS
+from ecs_files_composer.jinja2_functions import JINJA_FUNCTIONS
 
 
 class File(FileDef):

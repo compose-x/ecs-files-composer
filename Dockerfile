@@ -6,9 +6,9 @@ ARG LAMBDA_IMAGE=public.ecr.aws/lambda/python:latest
 FROM $LAMBDA_IMAGE AS builder
 
 WORKDIR /opt
+RUN yum install gcc -y
 COPY ecs_files_composer /opt/ecs_files_composer
 COPY poetry.lock pyproject.toml MANIFEST.in README.rst LICENSE /opt/
-RUN yum install gcc -y
 RUN python -m pip install pip -U; python -m pip install poetry; poetry build
 
 
@@ -25,4 +25,3 @@ RUN apt-get update; apt-get install gcc -y; \
     rm -rf /var/lib/{apt,dpkg,cache,log}/
 WORKDIR /
 ENTRYPOINT ["python", "-m", "ecs_files_composer.cli"]
-CMD ["-h"]
