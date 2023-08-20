@@ -5,17 +5,16 @@
 
 from __future__ import annotations
 
-import os
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from .input import Model
-
 import json
+import os
+from dataclasses import asdict
+from enum import Enum
 from os import environ, path
 from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING, ByteString
 
 import yaml
+from dacite import Config, from_dict
 from yaml import Loader
 
 from ecs_files_composer import input
@@ -37,22 +36,9 @@ def init_config(
     decode_base64=False,
     context=None,
     override_folder: str = None,
+    print_generated_config: bool = False,
 ):
-    """
-    Function to initialize the configuration
-
-    :param raw: The raw content of a content
-    :param str file_path: The path to a job configuration file
-    :param str env_var:
-    :param str ssm_parameter:
-    :param str s3_config:
-    :param str secret_config:
-    :param str role_arn:
-    :param str external_id:
-    :param bool decode_base64:
-    :return: The ECS Config description
-    :rtype: dict
-    """
+    """Function to initialize the configuration as if it were a file itself"""
     iam_override = {"SessionName": "FilesComposerInit"}
     if ssm_parameter or s3_config or secret_config:
         role_arn = environ.get("CONFIG_IAM_ROLE_ARN", role_arn)
@@ -89,7 +75,6 @@ def init_config(
         initial_config = {"content": raw}
     elif env_var:
         LOG.debug(f"Using env var {env_var}")
-        LOG.debug(f"Value is {environ.get(env_var)}")
         initial_config = {"content": environ.get(env_var, None)}
     else:
         raise ValueError("No input source was provided")
@@ -112,43 +97,50 @@ def init_config(
     start_jobs(jobs_input_def)
     try:
         with open(config_path) as config_fd:
+            _file_content = config_fd.read()
+            if print_generated_config:
+                LOG.info(_file_content)
             try:
-                config = yaml.load(config_fd.read(), Loader=Loader)
+                config = yaml.load(_file_content, Loader=Loader)
                 LOG.info(f"Successfully loaded YAML config {config_path}")
-                return config
             except yaml.YAMLError:
-                config = json.loads(config_fd.read())
-                LOG.info(f"Successfully loaded JSON config {config_path}")
-                return config
-            except Exception:
-                LOG.error("Input content is neither JSON nor YAML formatted")
-                raise
+                try:
+                    config = json.loads(_file_content)
+                    LOG.info(f"Successfully loaded JSON config {config_path}")
+                except json.JSONDecodeError:
+                    LOG.error("Input content is not valid JSON")
+                    raise
+            finally:
+                if print_generated_config:
+                    LOG.info(jobs_input_def)
+            return config
+
     except OSError as error:
         LOG.exception(error)
         LOG.error(f"Failed to read input file from {config_path}")
 
 
-def process_files(job: Model, override_session=None) -> None:
+def process_files(job: input.Model, override_session=None) -> None:
     files: list = []
     for file_path, file in job.files.items():
-        config = json.loads(file.json(by_alias=True))
-        file_redef = File(**config)
-        file_redef.path = file_path
-        files.append(file_redef)
+        if not isinstance(file, File):
+            file_redef = from_dict(
+                data_class=File, data=asdict(file), config=Config(cast=[Enum, bytes])
+            )
+            file_redef.path = file_path
+            files.append(file_redef)
+        else:
+            files.append(file)
     for file in files:
-        file.handler(job.iam_override, override_session)
+        file.handler(job.IamOverride, override_session)
         LOG.info(f"Tasks for {file.path} completed.")
 
 
 def start_jobs(config: dict, override_session=None):
-    """
-    Starting point to run the files job
-
-    :param config:
-    :param override_session:
-    :return:
-    """
-    job = input.Model(**config)
+    """Starting point to run the files job"""
+    job = from_dict(
+        data_class=input.Model, data=config, config=Config(cast=[Enum, bytes])
+    )
     if job.certificates:
         process_x509_certs(job)
     if job.files:

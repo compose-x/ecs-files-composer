@@ -1,11 +1,21 @@
 # SPDX-License-Identifier: MPL-2.0
 # Copyright 2020-2022 John Mille<john@compose-x.io>
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ecs_files_composer.input import Model as Job
+
 import pathlib
 import socket
+from dataclasses import asdict
 from os import path
 from typing import Any
 
+from compose_x_common.compose_x_common import keyisset
+from dacite import from_dict
 from OpenSSL import crypto
 
 from ecs_files_composer.files_mgmt import File
@@ -30,8 +40,8 @@ class X509Certificate(X509CertDef):
         self.keystore = None
 
     def init_cert_paths(self):
-        self.cert_file_path = path.abspath(f"{self.dir_path}/{self.cert_file_name}")
-        self.key_file_path = path.abspath(f"{self.dir_path}/{self.key_file_name}")
+        self.cert_file_path = path.abspath(f"{self.dir_path}/{self.certFileName}")
+        self.key_file_path = path.abspath(f"{self.dir_path}/{self.keyFileName}")
         print(f"Creating {self.dir_path} folder")
         dir_path = pathlib.Path(path.abspath(self.dir_path))
         dir_path.mkdir(parents=True, exist_ok=True)
@@ -41,23 +51,23 @@ class X509Certificate(X509CertDef):
         self.key.generate_key(crypto.TYPE_RSA, 4096)
 
     def set_common_name(self):
-        if self.common_name is None:
-            self.common_name = socket.gethostname()
+        if self.commonName is None:
+            self.commonName = socket.gethostname()
 
     def generate_cert(self):
-        if not self.common_name:
+        if not self.commonName:
             self.set_common_name()
         self.cert = crypto.X509()
-        self.cert.get_subject().C = self.country_name
-        self.cert.get_subject().ST = self.state_or_province_name
-        self.cert.get_subject().L = self.locality_name
-        self.cert.get_subject().O = self.organization_name
-        self.cert.get_subject().OU = self.organization_unit_name
-        self.cert.get_subject().CN = self.common_name
-        self.cert.get_subject().emailAddress = self.email_address
+        self.cert.get_subject().C = self.countryName
+        self.cert.get_subject().ST = self.stateOrProvinceName
+        self.cert.get_subject().L = self.localityName
+        self.cert.get_subject().O = self.organizationName
+        self.cert.get_subject().OU = self.organizationUnitName
+        self.cert.get_subject().CN = self.commonName
+        self.cert.get_subject().emailAddress = self.emailAddress
         self.cert.set_serial_number(0)
         self.cert.gmtime_adj_notBefore(0)
-        self.cert.gmtime_adj_notAfter(int(self.validity_end_in_seconds))
+        self.cert.gmtime_adj_notAfter(int(self.validityEndInSeconds))
         self.cert.set_issuer(self.cert.get_subject())
         self.cert.set_pubkey(self.key)
         self.cert.sign(self.key, "sha512")
@@ -77,37 +87,36 @@ class X509Certificate(X509CertDef):
     def set_cert_files(self):
         if not self.cert_content or not self.key_content:
             self.generate_cert_content()
-        self.key_file = File().parse_obj(
-            {
+        self.key_file = from_dict(
+            data_class=File,
+            data={
                 "content": self.key_content,
                 "path": self.key_file_path,
                 "mode": "0600",
                 "owner": self.owner,
                 "group": self.group,
-            }
+            },
         )
-        self.cert_file = File().parse_obj(
-            {
+
+        self.cert_file = from_dict(
+            data_class=File,
+            data={
                 "content": self.cert_content,
                 "path": self.cert_file_path,
                 "mode": "0600",
                 "owner": self.owner,
                 "group": self.group,
-            }
+            },
         )
 
 
 def process_x509_certs(job):
-    """
-
-    :param ecs_files_composer.input.Model job:
-    :return:
-    """
-    if not hasattr(job.certificates, "x509") or not job.certificates.x509:
+    """Processes x509 certificates"""
+    if not job.certificates or not job.certificates.x509:
         return
     for cert_path, cert_def in job.certificates.x509.items():
         cert_obj = X509Certificate(
-            **(cert_def.dict(by_alias=True)),
+            **asdict(cert_def),
         )
         cert_obj.dir_path = cert_path
         cert_obj.init_cert_paths()

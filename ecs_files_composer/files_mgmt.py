@@ -22,7 +22,13 @@ from jinja2 import Environment, FileSystemLoader
 from ecs_files_composer.aws_mgmt import S3Fetcher, SecretFetcher, SsmFetcher
 from ecs_files_composer.common import LOG
 from ecs_files_composer.envsubst import expandvars
-from ecs_files_composer.input import Context, Encoding, FileDef, IgnoreFailureItem
+from ecs_files_composer.input import (
+    Context,
+    Encoding,
+    FileDef,
+    IgnoreFailureItem,
+    SourceDef,
+)
 from ecs_files_composer.jinja2_filters import JINJA_FILTERS
 from ecs_files_composer.jinja2_functions import JINJA_FUNCTIONS
 
@@ -104,13 +110,14 @@ class File(FileDef):
         if self.ignore_failure and isinstance(self.ignore_failure, IgnoreFailureItem):
             ignore_source_download_error = self.ignore_failure.source_download
         retrieved = False
-        if self.source.url:
+        LOG.debug(self.source)
+        if self.source.Url:
             retrieved = self.handle_url_source()
-        elif self.source.ssm:
+        elif self.source.Ssm:
             retrieved = self.handle_ssm_source(iam_override, session_override)
-        elif self.source.s3:
+        elif self.source.S3:
             retrieved = self.handle_s3_source(iam_override, session_override)
-        elif self.source.secret:
+        elif self.source.Secret:
             retrieved = self.handle_secret_source(iam_override, session_override)
         LOG.debug(
             f"Return from source for {self.path}: {retrieved}-{ignore_source_download_error}"
@@ -125,10 +132,10 @@ class File(FileDef):
         :param boto3.session.Session session_override:
         :return:
         """
-        parameter_name = expandvars(self.source.ssm.parameter_name)
+        parameter_name = expandvars(self.source.Ssm.ParameterName)
         LOG.debug(f"Retrieving ssm://{parameter_name}")
-        if self.source.ssm.iam_override:
-            fetcher = SsmFetcher(iam_config_object=self.source.ssm.iam_override)
+        if self.source.Ssm.IamOverride:
+            fetcher = SsmFetcher(iam_config_object=self.source.Ssm.IamOverride)
         elif iam_override:
             fetcher = SsmFetcher(iam_config_object=iam_override)
         elif session_override:
@@ -153,11 +160,11 @@ class File(FileDef):
         """
         from ecs_files_composer.input import S3Def
 
-        if not isinstance(self.source.s3, S3Def):
-            raise TypeError("S3 source is not of type S3Def", type(self.source.s3))
+        if not isinstance(self.source.S3, S3Def):
+            raise TypeError("S3 source is not of type S3Def", type(self.source.S3))
 
-        if self.source.s3.iam_override:
-            fetcher = S3Fetcher(iam_config_object=self.source.s3.iam_override)
+        if self.source.S3.IamOverride:
+            fetcher = S3Fetcher(iam_config_object=self.source.S3.IamOverride)
         elif iam_override:
             fetcher = S3Fetcher(iam_config_object=iam_override)
         elif session_override:
@@ -165,17 +172,17 @@ class File(FileDef):
         else:
             fetcher = S3Fetcher()
         try:
-            if self.source.s3.s3_uri:
+            if self.source.S3.S3Uri:
                 self.content = fetcher.get_content(
-                    s3_uri=self.source.s3.s3_uri,
+                    s3_uri=self.source.S3.S3Uri,
                 )
-            elif self.source.s3.compose_x_uri:
+            elif self.source.S3.ComposeXUri:
                 self.content = fetcher.get_content(
-                    composex_uri=self.source.s3.compose_x_uri,
+                    composex_uri=self.source.S3.ComposeXUri,
                 )
             else:
-                bucket_name = expandvars(self.source.s3.bucket_name)
-                key = expandvars(self.source.s3.key)
+                bucket_name = expandvars(self.source.S3.BucketName)
+                key = expandvars(self.source.S3.Key)
                 self.content = fetcher.get_content(
                     s3_bucket=bucket_name,
                     s3_key=key,
@@ -194,8 +201,8 @@ class File(FileDef):
         :param boto3.session.Session session_override:
         :return:
         """
-        if self.source.secret.iam_override:
-            fetcher = SecretFetcher(iam_config_object=self.source.secret.iam_override)
+        if self.source.Secret.IamOverride:
+            fetcher = SecretFetcher(iam_config_object=self.source.Secret.IamOverride)
         elif iam_override:
             fetcher = SecretFetcher(iam_config_object=iam_override)
         elif session_override:
@@ -203,7 +210,7 @@ class File(FileDef):
         else:
             fetcher = SecretFetcher()
         try:
-            self.content = fetcher.get_content(self.source.secret)
+            self.content = fetcher.get_content(self.source.Secret)
             return True
         except Exception as error:
             LOG.error("Failed to retrieve file from AWS Secrets Manager")
@@ -215,12 +222,12 @@ class File(FileDef):
         Fetches the content from a provided URI
 
         """
-        if not self.source.url.username or not self.source.url.password:
-            req = requests.get(self.source.url.url)
+        if not self.source.Url.Username or not self.source.Url.Password:
+            req = requests.get(self.source.Url.Url)
         else:
             req = requests.get(
-                self.source.url.url,
-                auth=(self.source.url.username, self.source.url.password),
+                self.source.Url.Url,
+                auth=(self.source.Url.Username, self.source.Url.Password),
             )
         try:
             req.raise_for_status()
@@ -313,9 +320,13 @@ class File(FileDef):
             ignore_post_command_failure = self.ignore_failure.commands
         commands = self.commands.post
         for command in commands:
-            cmd = command
+            display_output = False
+            if not isinstance(command, str):
+                display_output = command.display_output
             if isinstance(command, str):
                 cmd = command.split(" ")
+            else:
+                cmd = command.command.split(" ")
             LOG.info(f"{self.path} - {cmd}")
             try:
                 res = subprocess.run(
@@ -324,6 +335,8 @@ class File(FileDef):
                     capture_output=True,
                     shell=False,
                 )
+                if display_output:
+                    LOG.info(res)
             except subprocess.CalledProcessError as error:
                 if ignore_post_command_failure:
                     LOG.error(error)

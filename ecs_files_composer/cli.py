@@ -77,7 +77,14 @@ def main():
         "--dump-ecs-details",
         action="store_true",
         required=False,
+        default=False,
         help="On startup, dumps ecs metadata to stdout",
+    )
+    parser.add_argument(
+        "--print-generated-config",
+        action="store_true",
+        help="Display generated config",
+        default=False,
     )
     args = parser.parse_args()
     LOG.debug(f"CLI ARGS?: {args}")
@@ -91,6 +98,7 @@ def main():
             env_var="ECS_CONFIG_CONTENT",
             decode_base64=bool(environ.get("DECODE_BASE64", False)),
             context=environ.get("context", "jinja2"),
+            print_generated_config=args.print_generated_config,
         )
     elif args.env_var:
         config = init_config(
@@ -98,6 +106,7 @@ def main():
             decode_base64=args.decode_base64,
             context=args.context,
             override_folder=args.init_folder,
+            print_generated_config=args.print_generated_config,
         )
     elif args.file_path:
         config = init_config(
@@ -105,6 +114,7 @@ def main():
             decode_base64=args.decode_base64,
             context=args.context,
             override_folder=args.init_folder,
+            print_generated_config=args.print_generated_config,
         )
     elif args.ssm_config:
         config = init_config(
@@ -112,6 +122,7 @@ def main():
             decode_base64=args.decode_base64,
             context=args.context,
             override_folder=args.init_folder,
+            print_generated_config=args.print_generated_config,
         )
     elif args.s3_config:
         config = init_config(
@@ -119,6 +130,7 @@ def main():
             decode_base64=args.decode_base64,
             context=args.context,
             override_folder=args.init_folder,
+            print_generated_config=args.print_generated_config,
         )
     elif args.secret_config:
         config = init_config(
@@ -126,6 +138,7 @@ def main():
             decode_base64=args.decode_base64,
             context=args.context,
             override_folder=args.init_folder,
+            print_generated_config=args.print_generated_config,
         )
     else:
         raise parser.error(

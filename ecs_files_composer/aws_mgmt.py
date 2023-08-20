@@ -23,12 +23,12 @@ def create_session_from_creds(tmp_creds: dict, region: str = None):
     """
     creds = tmp_creds["Credentials"]
     params = {
-        "aws_access_key_id": creds["AccessKeyId"],
-        "aws_secret_access_key": creds["SecretAccessKey"],
+        "aws_AccessKeyId": creds["AccessKeyId"],
+        "aws_SecretAccessKey": creds["SecretAccessKey"],
         "aws_session_token": creds["SessionToken"],
     }
     if region:
-        params["region_name"] = region
+        params["RegionName"] = region
     return boto3.session.Session(**params)
 
 
@@ -43,23 +43,23 @@ def set_session_from_iam_object(iam_config_object, source_session: Session = Non
     """
     if source_session is None:
         source_session = boto3.Session()
-    if not iam_config_object.access_key_id and not iam_config_object.secret_access_key:
+    if not iam_config_object.AccessKeyId and not iam_config_object.SecretAccessKey:
         params = {
-            "RoleArn": iam_config_object.role_arn,
-            "RoleSessionName": f"{iam_config_object.session_name}@AwsResourceHandlerInit",
+            "RoleArn": iam_config_object.RoleArn,
+            "RoleSessionName": f"{iam_config_object.SessionName}@AwsResourceHandlerInit",
         }
-        if iam_config_object.external_id:
-            params["ExternalId"] = iam_config_object.external_id
+        if iam_config_object.ExternalId:
+            params["ExternalId"] = iam_config_object.ExternalId
         tmp_creds = source_session.client("sts").assume_role(**params)
         client_session = create_session_from_creds(
-            tmp_creds, region=iam_config_object.region_name
+            tmp_creds, region=iam_config_object.RegionName
         )
     else:
         client_session = boto3.session.Session(
-            aws_access_key_id=iam_config_object.access_key_id,
-            aws_secret_access_key=iam_config_object.secret_access_key,
-            aws_session_token=iam_config_object.session_token
-            if iam_config_object.session_token
+            aws_access_key_id=iam_config_object.AccessKeyId,
+            aws_secret_access_key=iam_config_object.SecretAccessKey,
+            aws_session_token=iam_config_object.SessionToken
+            if iam_config_object.SessionToken
             else None,
         )
     return client_session
@@ -72,15 +72,15 @@ class AwsResourceHandler:
 
     def __init__(
         self,
-        role_arn=None,
-        external_id=None,
+        RoleArn=None,
+        ExternalId=None,
         region=None,
         iam_config_object=None,
         client_session_override=None,
     ):
         """
-        :param str role_arn:
-        :param str external_id:
+        :param str RoleArn:
+        :param str ExternalId:
         :param str region:
         :param ecs_files_composer.input.IamOverrideDef iam_config_object:
         """
@@ -88,22 +88,22 @@ class AwsResourceHandler:
         self.client_session = Session()
         if client_session_override:
             self.client_session = client_session_override
-        elif not client_session_override and (role_arn or iam_config_object):
-            if role_arn and not iam_config_object:
+        elif not client_session_override and (RoleArn or iam_config_object):
+            if RoleArn and not iam_config_object:
                 params = {
-                    "RoleArn": role_arn,
+                    "RoleArn": RoleArn,
                     "RoleSessionName": "EcsConfigComposer@AwsResourceHandlerInit",
                 }
-                if external_id:
-                    params["ExternalId"] = external_id
+                if ExternalId:
+                    params["ExternalId"] = ExternalId
                 tmp_creds = self.session.client("sts").assume_role(**params)
                 self.client_session = create_session_from_creds(
                     tmp_creds, region=region
                 )
             elif (
                 iam_config_object
-                and hasattr(iam_config_object, "role_arn")
-                and iam_config_object.role_arn
+                and hasattr(iam_config_object, "RoleArn")
+                and iam_config_object.RoleArn
             ):
                 self.client_session = set_session_from_iam_object(
                     iam_config_object, self.session
@@ -120,14 +120,14 @@ class S3Fetcher(AwsResourceHandler):
 
     def __init__(
         self,
-        role_arn=None,
-        external_id=None,
+        RoleArn=None,
+        ExternalId=None,
         region=None,
         iam_config_object=None,
         client_session_override=None,
     ):
         super().__init__(
-            role_arn, external_id, region, iam_config_object, client_session_override
+            RoleArn, ExternalId, region, iam_config_object, client_session_override
         )
 
     @property
@@ -173,14 +173,14 @@ class SsmFetcher(AwsResourceHandler):
 
     def __init__(
         self,
-        role_arn=None,
-        external_id=None,
+        RoleArn=None,
+        ExternalId=None,
         region=None,
         iam_config_object=None,
         client_session_override=None,
     ):
         super().__init__(
-            role_arn, external_id, region, iam_config_object, client_session_override
+            RoleArn, ExternalId, region, iam_config_object, client_session_override
         )
         self.client = self.client_session.client("ssm")
 
@@ -212,14 +212,14 @@ class SecretFetcher(AwsResourceHandler):
 
     def __init__(
         self,
-        role_arn=None,
-        external_id=None,
+        RoleArn=None,
+        ExternalId=None,
         region=None,
         iam_config_object=None,
         client_session_override=None,
     ):
         super().__init__(
-            role_arn, external_id, region, iam_config_object, client_session_override
+            RoleArn, ExternalId, region, iam_config_object, client_session_override
         )
         self.client = self.client_session.client("secretsmanager")
 
@@ -230,13 +230,13 @@ class SecretFetcher(AwsResourceHandler):
         :param input.SecretDef secret:
         :return:
         """
-        secret_id = expandvars(secret.secret_id)
+        secret_id = expandvars(secret.SecretId)
         params = {"SecretId": secret_id}
         LOG.debug(f"Retrieving secretsmanager://{secret_id}")
-        if secret.version_id:
-            params["VersionId"] = secret.version_id
-        if secret.version_stage:
-            params["VersionStage"] = secret.version_stage
+        if secret.VersionId:
+            params["VersionId"] = secret.VersionId
+        if secret.VersionStage:
+            params["VersionStage"] = secret.VersionStage
         try:
             parameter = self.client.get_secret_value(**params)
             return parameter["SecretString"]

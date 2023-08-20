@@ -85,7 +85,7 @@ def base64_template():
                     b"# This is a test\n"
                     b"{{ test | env_override('SHELL') }}\n"
                     b"\n"
-                ),
+                ).decode("utf-8"),
                 "encoding": "base64",
                 "context": "jinja2",
             }
