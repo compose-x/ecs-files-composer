@@ -31,8 +31,8 @@ jsonschema = "^4.17"
 compose-x-common = "^1.3"
 flatdict = "^4.0.1"
 pyjks = "^20.0.0"
-certbot-aws-store = "^0.4.2.post0"
 aws-cfn-custom-resource-resolve-parser = "^0.3.0"
+cryptography = "^41.0.3"
 
 [tool.poetry.group.dev.dependencies]
 placebo = "^0.10"

@@ -50,6 +50,10 @@ your needs.
 jksConfig
 ------------
 
+.. warning::
+
+    [DEPRECATED SINCE 1.5.0]
+
 This is a configuration option that allows you to create a java key store (JKS) in the JKS format from the generated
 certificate files. You can specify the fileName which will be created in the same folder, alongside the key and certificate.
 You must specify a passphrase, which is used for both the private key and the jks encryption.
