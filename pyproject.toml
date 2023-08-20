@@ -62,6 +62,7 @@ field-constraints = true
 snake-case-field = true
 strip-default-none = false
 target-python-version = "3.8"
+output-model-type = "dataclasses.dataclass"
 
 [tool.black]
 line-length = 88

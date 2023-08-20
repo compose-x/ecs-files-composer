@@ -167,11 +167,11 @@ class File(FileDef):
         try:
             if self.source.s3.s3_uri:
                 self.content = fetcher.get_content(
-                    s3_uri=self.source.s3.s3_uri.__root__,
+                    s3_uri=self.source.s3.s3_uri,
                 )
             elif self.source.s3.compose_x_uri:
                 self.content = fetcher.get_content(
-                    composex_uri=self.source.s3.compose_x_uri.__root__,
+                    composex_uri=self.source.s3.compose_x_uri,
                 )
             else:
                 bucket_name = expandvars(self.source.s3.bucket_name)
@@ -311,7 +311,7 @@ class File(FileDef):
         )
         if self.ignore_failure and isinstance(self.ignore_failure, IgnoreFailureItem):
             ignore_post_command_failure = self.ignore_failure.commands
-        commands = self.commands.post.__root__
+        commands = self.commands.post
         for command in commands:
             cmd = command
             if isinstance(command, str):
