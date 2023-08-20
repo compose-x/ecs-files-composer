@@ -32,7 +32,6 @@ def hostname(alternative_value: str = None) -> str:
             return str(socket.gethostname())
         except Exception as error:
             print("Error with socket", error)
-            pass
     if alternative_value:
         return alternative_value
 
