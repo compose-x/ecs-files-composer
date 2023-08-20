@@ -25,4 +25,3 @@ RUN apt-get update; apt-get install gcc -y; \
     rm -rf /var/lib/{apt,dpkg,cache,log}/
 WORKDIR /
 ENTRYPOINT ["python", "-m", "ecs_files_composer.cli"]
-CMD ["-h"]
