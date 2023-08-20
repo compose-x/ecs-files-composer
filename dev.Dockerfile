@@ -15,14 +15,10 @@ RUN python -m pip install pip -U; python -m pip install poetry; poetry build
 FROM $BASE_IMAGE
 
 COPY --from=builder /opt/dist/*.whl ${LAMBDA_TASK_ROOT:-/app/}/dist/
-RUN apt-get update; apt-get install gcc -y; \
-    python -m pip install pip -U --no-cache-dir; \
-    python -m pip install /app/dist/*.whl ;\
-    apt-get purge gcc -y; \
-    apt-get --purge autoremove;\
-    apt-get autoremove --yes ; \
-    apt-get clean autoclean ; \
-    rm -rf /var/lib/{apt,dpkg,cache,log}/
+RUN apt-get update; apt-get install gcc -y
+RUN python -m pip install pip -U --no-cache-dir; \
+    python -m pip install /app/dist/*.whl
+
 WORKDIR /
 ENTRYPOINT ["python", "-m", "ecs_files_composer.cli"]
 CMD ["-h"]

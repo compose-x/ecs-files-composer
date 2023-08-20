@@ -12,6 +12,8 @@ from os import environ
 import yaml
 from flatdict import FlatterDict
 
+from ecs_files_composer.common import LOG
+
 
 def env_override(value, key):
     """
@@ -78,10 +80,12 @@ def get_property(metadata, property_key, separator: str = None):
         separator = r"::"
     metadata_mapping = FlatterDict(metadata)
     metadata_mapping.set_delimiter(separator)
+    LOG.debug(metadata_mapping)
     if property_key in metadata_mapping:
         return metadata_mapping[property_key]
 
     metadata_mapping = from_metadata_to_flat_keys(metadata)
+    LOG.debug(metadata_mapping)
     property_re = re.compile(property_key)
     for key, value in metadata_mapping.items():
         if property_re.findall(key):

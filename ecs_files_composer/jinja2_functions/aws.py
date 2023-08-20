@@ -14,11 +14,10 @@ import requests
 from aws_cfn_custom_resource_resolve_parser import handle
 from boto3.session import Session
 from botocore.exceptions import ClientError
+from compose_x_common.aws.ec2 import get_ec2_subnet_from_vpc_and_ip_cidr
 from compose_x_common.compose_x_common import keyisset
 
 from ecs_files_composer.jinja2_filters import get_property
-
-from .aws_tools import get_ec2_subnet_from_vpc_and_ip_cidr
 
 
 def define_ecs_metadata(for_task=False):
@@ -87,7 +86,7 @@ def ecs_container_metadata(property_key=None, fallback_value=None):
     if property_key:
         value = get_property(metadata, property_key)
         if value is None:
-            print(f"No task property found matching {property_key}")
+            print(f"No container property found matching {property_key}")
             return fallback_value
         return value
     return metadata
@@ -116,9 +115,9 @@ def ec2_zone_id(subnet_id: str = None):
     session = Session()
     if not subnet_id:
         vpc_id = ecs_task_metadata("VPCID")
-        subnet_range = ecs_task_metadata("Networks::0::IPv4SubnetCIDRBlock")
+        subnet_range = ecs_container_metadata("Networks::0::IPv4SubnetCIDRBlock")
         subnet_details = get_ec2_subnet_from_vpc_and_ip_cidr(
-            vpc_id, subnet_range, session
+            subnet_range, vpc_id, session
         )
         return subnet_details["AvailabilityZoneId"]
     elif subnet_id:
@@ -134,16 +133,19 @@ def ec2_zone_id(subnet_id: str = None):
 
 def dump_ecs_details():
     print("Dumping ECS Details")
-    print("ECS Container Metadata: ", ecs_container_metadata())
-    print("ECS Task Metadata: ", ecs_task_metadata())
-    vpc_id = ecs_task_metadata("VPCID")
-    subnet_range = ecs_task_metadata("Networks::0::IPv4SubnetCIDRBlock")
-    print("VPC ID: ", vpc_id)
-    print("Subnet Range: ", subnet_range)
     try:
-        subnet_details = get_ec2_subnet_from_vpc_and_ip_cidr(
-            vpc_id, subnet_range, Session()
-        )
-        print("Container subnet details: ", subnet_details)
+        print("ECS Container Metadata: ", ecs_container_metadata())
+        print("ECS Task Metadata: ", ecs_task_metadata())
+        vpc_id = ecs_task_metadata("VPCID")
+        subnet_range = ecs_container_metadata("Networks::0::IPv4SubnetCIDRBlock")
+        print("VPC ID: ", vpc_id)
+        print("Subnet Range: ", subnet_range)
+        try:
+            subnet_details = get_ec2_subnet_from_vpc_and_ip_cidr(
+                subnet_range, vpc_id, Session()
+            )
+            print("Container subnet details: ", subnet_details)
+        except Exception as error:
+            print("Could not retrieve subnet details", error)
     except Exception as error:
-        print("Could not retrieve subnet details", error)
+        print(error)

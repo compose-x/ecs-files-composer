@@ -499,13 +499,13 @@ files = [
 
 [[package]]
 name = "compose-x-common"
-version = "1.2.13"
+version = "1.3.0"
 description = "Common Library for Compose-X Projects"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "compose_x_common-1.2.13-py3-none-any.whl", hash = "sha256:6e51bb1365bd50a1bfdbbe3be98d7ff01e4422aa3f9f551a9f355bb0199f13b9"},
-    {file = "compose_x_common-1.2.13.tar.gz", hash = "sha256:9ba585d19486bc73083a0e6c5577578396bf7647cd8195c98163be9b195f2699"},
+    {file = "compose_x_common-1.3.0-py3-none-any.whl", hash = "sha256:25615118025097c0f24c711011894ae8dfec984c0411e7ddd7eff5223ad1e56d"},
+    {file = "compose_x_common-1.3.0.tar.gz", hash = "sha256:a82a22b575d77f409d12a60ce18bd761cf6c5e3f28955eb50f07b3b989dacdee"},
 ]
 
 [package.dependencies]
@@ -2507,4 +2507,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "7fcd32f06fac0e98515011a0c28cefcce06245696e034ed50dd578d8d7cdb9e5"
+content-hash = "a1e93c02662878a261fa30006b41d9bf3a643fc4cfc602c1743a3dab5d9011f7"

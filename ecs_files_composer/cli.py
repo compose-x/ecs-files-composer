@@ -79,9 +79,10 @@ def main():
         required=False,
         help="On startup, dumps ecs metadata to stdout",
     )
-    parser.add_argument("_", nargs="*")
     args = parser.parse_args()
-    print("Arguments: " + str(args._))
+    LOG.debug(f"CLI ARGS?: {args}")
+    if args.dump_ecs_details:
+        dump_ecs_details()
     if not (
         args.env_var or args.ssm_config or args.s3_config or args.file_path
     ) and environ.get("ECS_CONFIG_CONTENT", None):
@@ -130,8 +131,6 @@ def main():
         raise parser.error(
             "You must specify where the execution configuration comes from or set ECS_CONFIG_CONTENT."
         )
-    if args.dump_ecs_details:
-        dump_ecs_details()
     start_jobs(config)
     return 0
 
