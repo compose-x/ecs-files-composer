@@ -61,6 +61,7 @@ class CommandsDefItem:
 
     command: Optional[str] = None
     display_output: Optional[bool] = False
+    ignore_error: Optional[bool] = False
 
 
 CommandsDef = List[Union[str, CommandsDefItem]]

@@ -300,6 +300,11 @@
                 "type": "boolean",
                 "default": false,
                 "description": "Displays the command output"
+              },
+              "ignore_error": {
+                "type": "boolean",
+                "description": "Ignore if command failed",
+                "default": false
               }
             }
           }

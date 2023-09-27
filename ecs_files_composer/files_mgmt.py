@@ -321,8 +321,10 @@ class File(FileDef):
         commands = self.commands.post
         for command in commands:
             display_output = False
+            ignore_this_command_failure = ignore_post_command_failure
             if not isinstance(command, str):
                 display_output = command.display_output
+                ignore_this_command_failure = command.ignore_error
             if isinstance(command, str):
                 cmd = command.split(" ")
             else:
@@ -336,9 +338,9 @@ class File(FileDef):
                     shell=False,
                 )
                 if display_output:
-                    LOG.info(res)
+                    print(res)
             except subprocess.CalledProcessError as error:
-                if ignore_post_command_failure:
+                if ignore_this_command_failure:
                     LOG.error(error)
                 else:
                     raise
