@@ -284,8 +284,31 @@
       "type": "array",
       "description": "List of commands to run",
       "items": {
-        "type": "string",
-        "description": "Shell command to run"
+        "oneOf": [
+          {
+            "type": "string",
+            "description": "Shell command to run"
+          },
+          {
+            "type": "object",
+            "description": "Command to run with options",
+            "properties": {
+              "command": {
+                "type": "string"
+              },
+              "display_output": {
+                "type": "boolean",
+                "default": false,
+                "description": "Displays the command output"
+              },
+              "ignore_error": {
+                "type": "boolean",
+                "description": "Ignore if command failed",
+                "default": false
+              }
+            }
+          }
+        ]
       }
     },
     "X509CertDef": {

@@ -88,6 +88,7 @@ docker-compose
     input
     features
     jinja2_functions_filters
+    commands
     certificates
     examples
     modules

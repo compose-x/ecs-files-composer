@@ -6,6 +6,7 @@ from __future__ import annotations
 from os import environ
 
 from ecs_files_composer.jinja2_functions.aws import (
+    ec2_zone_id,
     ecs_container_metadata,
     ecs_task_metadata,
     from_ssm,
@@ -45,4 +46,6 @@ JINJA_FUNCTIONS = {
     "from_resolve": using_resolve,
     "msk_bootstrap": msk_bootstrap,
     "hostname": hostname,
+    "ec2_zone_id": ec2_zone_id,
+    "subnet_zone_id": ec2_zone_id,
 }
