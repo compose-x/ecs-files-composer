@@ -8,6 +8,7 @@ AWS Based Functions
 from __future__ import annotations
 
 import json
+import re
 from os import environ
 
 import requests
@@ -48,6 +49,38 @@ def msk_bootstrap(msk_arn: str, broker_type: str) -> str:
     if keyisset(broker_type, brokers_r):
         return brokers_r[broker_type]
     return msk_arn
+
+
+def msk_cluster_zookeeper(msk_arn, with_tls: bool):
+    session = Session()
+    client = session.client("kafka")
+    config_r = client.describe_cluster(ClusterArn=msk_arn)
+    config_info = config_r["ClusterInfo"]
+    if with_tls and keyisset("ZookeeperConnectStringTls", config_info):
+        return config_info["ZookeeperConnectStringTls"]
+    else:
+        if keyisset("ZookeeperConnectString", config_info):
+            return config_info["ZookeeperConnectString"]
+    return ""
+
+
+def msk_endpoints(msk_arn: str, broker_type: str, endpoint_type: str):
+    session = Session()
+    client = session.client("kafka")
+    brokers_r = client.get_bootstrap_brokers(ClusterArn=msk_arn)
+    if not keyisset(broker_type, brokers_r):
+        return
+    _endpoints = brokers_r[broker_type].split(",")
+    endpoint_port: dict = {"JMX": 11001, "NODE": 11002}
+    _msk_ports_re = re.compile(r":(?P<port>\d+)")
+    if endpoint_type not in endpoint_port:
+        endpoint_type = "JMX"
+    endpoints: list[str] = []
+    for _endpoint in _endpoints:
+        endpoints.append(
+            _msk_ports_re.sub(f":{endpoint_port[endpoint_type]}", _endpoint)
+        )
+    return endpoints
 
 
 def from_ssm_json(parameter_name: str) -> dict:
