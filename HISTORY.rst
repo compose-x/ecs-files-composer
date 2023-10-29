@@ -2,7 +2,8 @@
 History
 =======
 
-0.0.1 (2021-07-15)
-===================
+2.0.0
+===========
 
-* First release on PyPI.
+
+Replaced pydantic with dataclasses making the dependencies a lot lighter and more appropriate.
