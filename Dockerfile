@@ -16,7 +16,6 @@ RUN poetry build
 
 FROM $BASE_IMAGE
 COPY --from=builder /opt/dist/*.whl ${LAMBDA_TASK_ROOT:-/app/}/dist/
-RUN python -m pip install pip -U --no-cache-dir
-RUN python -m pip install --no-cache-dir /app/dist/*.whl
+RUN python -m pip install pip -U --no-cache-dir; python -m pip install --no-cache-dir /app/dist/*.whl
 WORKDIR /
 ENTRYPOINT ["python", "-m", "ecs_files_composer.cli"]
