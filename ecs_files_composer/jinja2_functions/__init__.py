@@ -12,6 +12,8 @@ from ecs_files_composer.jinja2_functions.aws import (
     from_ssm,
     from_ssm_json,
     msk_bootstrap,
+    msk_cluster_zookeeper,
+    msk_endpoints,
     using_resolve,
 )
 
@@ -45,6 +47,8 @@ JINJA_FUNCTIONS = {
     "from_ssm_json": from_ssm_json,
     "from_resolve": using_resolve,
     "msk_bootstrap": msk_bootstrap,
+    "msk_endpoints": msk_endpoints,
+    "msk_cluster_zookeeper": msk_cluster_zookeeper,
     "hostname": hostname,
     "ec2_zone_id": ec2_zone_id,
     "subnet_zone_id": ec2_zone_id,
