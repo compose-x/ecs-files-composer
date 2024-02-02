@@ -51,17 +51,21 @@ def msk_bootstrap(msk_arn: str, broker_type: str) -> str:
     return msk_arn
 
 
-def msk_cluster_zookeeper(msk_arn, with_tls: bool):
+def msk_cluster_zookeeper(msk_arn, with_tls: bool = False, as_list: bool = False):
     session = Session()
     client = session.client("kafka")
     config_r = client.describe_cluster(ClusterArn=msk_arn)
     config_info = config_r["ClusterInfo"]
     if with_tls and keyisset("ZookeeperConnectStringTls", config_info):
-        return config_info["ZookeeperConnectStringTls"]
+        conn_string = config_info["ZookeeperConnectStringTls"]
     else:
         if keyisset("ZookeeperConnectString", config_info):
-            return config_info["ZookeeperConnectString"]
-    return ""
+            conn_string = config_info["ZookeeperConnectString"]
+        else:
+            conn_string = ""
+    if conn_string and as_list:
+        return conn_string.split(",")
+    return conn_string
 
 
 def msk_endpoints(msk_arn: str, broker_type: str, endpoint_type: str):
