@@ -35,7 +35,7 @@ dacite = "^1.8.1"
 [tool.poetry.group.dev.dependencies]
 placebo = "^0.10"
 datamodel-code-generator = {extras = ["http"], version = "^0.21"}
-black = "^23.1"
+black = ">=23.1,<25.0"
 isort = "^5.10.1"
 coverage = "^7.1"
 behave = "^1.2.6"
