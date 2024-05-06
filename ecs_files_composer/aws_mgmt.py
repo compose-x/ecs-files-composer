@@ -58,9 +58,11 @@ def set_session_from_iam_object(iam_config_object, source_session: Session = Non
         client_session = boto3.session.Session(
             aws_access_key_id=iam_config_object.AccessKeyId,
             aws_secret_access_key=iam_config_object.SecretAccessKey,
-            aws_session_token=iam_config_object.SessionToken
-            if iam_config_object.SessionToken
-            else None,
+            aws_session_token=(
+                iam_config_object.SessionToken
+                if iam_config_object.SessionToken
+                else None
+            ),
         )
     return client_session
 
