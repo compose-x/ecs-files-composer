@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ecs_files_composer"
-version = "2.1.5"
+version = "2.1.6"
 description = "Files and configuration handler to inject configuration files into volumes for ECS containers"
 authors = ["John Preston <john@compose-x.io>"]
 license = "MPL-2.0"
@@ -98,7 +98,7 @@ omit = ["ecs_files_composer/cli.py"]
 github_url = "https://github.com/compose-x/ecs-files-composer"
 
 [tool.tbump.version]
-current = "2.1.5"
+current = "2.1.6"
 
 regex = '''
   (?P<major>\d+)
