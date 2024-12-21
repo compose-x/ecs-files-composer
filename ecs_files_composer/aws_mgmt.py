@@ -196,15 +196,8 @@ class SsmFetcher(AwsResourceHandler):
         """
         if self.arn_re.match(parameter_name):
             parameter_name = self.arn_re.match(parameter_name).group("name")
-        try:
-            parameter = self.client.get_parameter(
-                Name=parameter_name, WithDecryption=True
-            )
-            return parameter["Parameter"]["Value"]
-        except self.client.exceptions:
-            raise
-        except ClientError:
-            raise
+        parameter = self.client.get_parameter(Name=parameter_name, WithDecryption=True)
+        return parameter["Parameter"]["Value"]
 
 
 class SecretFetcher(AwsResourceHandler):
@@ -239,10 +232,6 @@ class SecretFetcher(AwsResourceHandler):
             params["VersionId"] = secret.VersionId
         if secret.VersionStage:
             params["VersionStage"] = secret.VersionStage
-        try:
-            parameter = self.client.get_secret_value(**params)
-            return parameter["SecretString"]
-        except self.client.exceptions:
-            raise
-        except ClientError:
-            raise
+
+        parameter = self.client.get_secret_value(**params)
+        return parameter["SecretString"]
