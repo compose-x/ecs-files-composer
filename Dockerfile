@@ -1,5 +1,5 @@
 ARG ARCH=
-ARG PY_VERSION=3.10
+ARG PY_VERSION=3.12
 ARG BASE_IMAGE=public.ecr.aws/docker/library/python:${PY_VERSION}-slim
 ARG LAMBDA_IMAGE=public.ecr.aws/lambda/python:latest
 
